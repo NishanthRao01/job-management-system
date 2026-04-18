@@ -12,9 +12,13 @@ app.use(express.json());
 //Routes
 const authRoutes = require("./src/routes/authRoutes");
 const testRoutes = require("./src/routes/testRoutes");
+const jobRoutes = require("./src/routes/jobRoutes");
+const errorHandler = require("./src/middleware/errorMiddleware");
 
 app.use("/api/auth",authRoutes);
 app.use("/api/test",testRoutes);
+app.use("/api/jobs",jobRoutes);
+app.use(errorHandler);
 
 //For any req starting with /api/auth, use the routes defined in authRoutes
 app.use("/api/auth",authRoutes);

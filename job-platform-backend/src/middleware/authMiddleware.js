@@ -1,7 +1,8 @@
 const jwt = require("jsonwebtoken");
+const AppError = require("../utils/AppError");
+const asyncHandler = require("../utils/asyncHandler");
 
-exports.protect = (req, res, next) => {
-    try{
+exports.protect = asyncHandler((req, res, next) => {
         let token;
 
         //get token from header
@@ -9,21 +10,20 @@ exports.protect = (req, res, next) => {
             token = req.headers.authorization.split(" ")[1];  //["Bearer", "TOKEN"]
         }
         if(!token){
-            return res.status(401).json({message: "Not authorized, no token"});
+            throw new AppError("Not authorized, No token", 401);
         }
         //verify token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded;
         next();
-    }catch(error){
-        return res.status(401).json({message: "Token invalid"});
-    }
-};
+});
 
 exports.authorizeRoles = (...roles) => {
     return (req, res, next) => {
-        if(!roles.includes(req.user.roles)){
-            return res.status(403).json({message: "Access denied"});
+        const userRole = req.user.role.trim().toLowerCase();
+        const allowedRoles = roles.map(r => r.toLowerCase());
+        if(!allowedRoles.includes(userRole)){
+            throw new AppError("Access deneid", 403);
         }
         next();
     };

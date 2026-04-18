@@ -1,21 +1,22 @@
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const asyncHandler = require("../utils/asyncHandler");
+const AppError = require("../utils/AppError");
 
-exports.login = async (req,res) => {
-    try{
+exports.login = asyncHandler(async (req,res) => {
         const {email, password} = req.body;
 
         //check if user exists
         const user = await User.findOne({email});
         if(!user){
-            return res.status(400).json({message: "Invaild Credentials"});
+            throw new AppError("Invalid Credentials", 400);
         }
 
         //compare password
         const isMatch = await bcrypt.compare(password, user.password);
         if(!isMatch) {
-            return res.status(400).json({message: "Invalid Credentials"});
+            throw new AppError("Invalid Credentials", 400);
         }
 
         const token = jwt.sign(
@@ -36,19 +37,15 @@ exports.login = async (req,res) => {
                 role: user.role,
             },
         });
-    }catch(error){
-        res.status(500).json({message: "Server error",error});
-    }
-};
+});
 
-exports.registerClient = async (req,res) => {
-    try{
+exports.registerClient = asyncHandler(async (req,res) => {
         const {name, email, password} = req.body;
 
         //check if user exists
         const existingUser = await User.findOne({email});
         if(existingUser) {
-            return res.status(400).json({message: "User already exists"});
+            throw new AppError("User already exists", 400);
         }
 
         //hash password
@@ -65,7 +62,4 @@ exports.registerClient = async (req,res) => {
             message: "Client registered successfully",
             user,
         });
-    }catch(error){
-        res.status(500).json({message: "Server error", error});
-    }
-};
+});
