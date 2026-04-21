@@ -19,9 +19,9 @@ const userSchema = new mongoose.Schema({
         enum: ["client","associate"], //allows only specifed values ensuring data consistency
         required: true,
     },
-    assignedClients: {
-        type: mongoose.Schema.Types.ObjectId, //Instead of storing full data ref.ID is stored 
-        ref: "User", //creates relationship btw users
+    clientsCount: {
+        type: Number,
+        default: 0
     },
     assignedAssociate: {
         type: mongoose.Schema.Types.ObjectId,

@@ -5,24 +5,20 @@ const APIFeatures = require("../utils/apiFeatures");
 const asyncHandler = require("../utils/asyncHandler");
 const AppError = require("../utils/AppError");
 
-exports.createJob = asyncHandler(async (req,res) => {
-    const {clientId, company, role, jobLink} =req.body;
+// CREATE JOB
+exports.createJob = asyncHandler(async (req, res) => {
+    const { clientId, company, role, jobLink } = req.body;
     const associateId = req.user.userId;
-    if (!clientId || !company || !role || !jobLink) {
-        throw new AppError("All fields are required", 400);
-    }
-    //Check client exists
+
     const client = await User.findById(clientId);
-    if(!client || client.role !== "client"){
-        throw new AppError("Unauthorized access", 403);
+    if (!client || client.role !== "client") {
+        throw new AppError("Client not found", 404);
     }
 
-    //Check association
-    if(client.assignedAssociate?.toString() !== associateId){
+    if (client.assignedAssociate?.toString() !== associateId) {
         throw new AppError("Not your client", 403);
     }
 
-        //Create job
     const job = await Job.create({
         clientId,
         associateId,
@@ -34,134 +30,149 @@ exports.createJob = asyncHandler(async (req,res) => {
 
     res.status(201).json({
         success: true,
-        message: "Job Created Successfully",
-        data: job
+        message: "Job created successfully",
+        data: job,
     });
 });
 
-exports.getClientJobs = asyncHandler(async (req,res) => {
-        //Check user exists & role
-        if(req.user.role !== "client"){
-            throw new AppError("Unauthorized access", 403);
-        }
-        const clientId = new mongoose.Types.ObjectId(req.user.userId);
 
-        let baseQuery = Job.find({ clientId })
-            .populate("clientId", "name email")
-            .populate("associateId", "name email");
+// GET CLIENT JOBS
+exports.getClientJobs = asyncHandler(async (req, res) => {
+    if (req.user.role !== "client") {
+        throw new AppError("Unauthorized access", 403);
+    }
 
-        const features = new APIFeatures(baseQuery, req.query)
-            .filter()
-            .sort()
-            .paginate();
+    const clientId = new mongoose.Types.ObjectId(req.user.userId);
 
-        const jobs = await features.query;
+    let baseQuery = Job.find({ clientId })
+        .populate("clientId", "name email")
+        .populate("associateId", "name email");
 
-        res.status(200).json({
-            success: true,
-            count: jobs.length,
-            jobs
-        });
+    const features = new APIFeatures(baseQuery, req.query)
+        .filter()
+        .sort()
+        .paginate();
+
+    const jobs = await features.query;
+
+    res.status(200).json({
+        success: true,
+        count: jobs.length,
+        data: jobs,
+    });
 });
 
-exports.getAssociateJobs = asyncHandler(async (req,res) => {
-        if(req.user.role !== "associate"){
-            throw new AppError("Unauthorized access", 403);
-        }
-        const associateId = new mongoose.Types.ObjectId(req.user.userId);
 
-        let baseQuery = Job.find({ associateId })
-            .populate("clientId", "name email")
-            .populate("associateId", "name email");
+// GET ASSOCIATE JOBS
+exports.getAssociateJobs = asyncHandler(async (req, res) => {
+    if (req.user.role !== "associate") {
+        throw new AppError("Unauthorized access", 403);
+    }
 
-        const features = new APIFeatures(baseQuery, req.query)
-            .filter()
-            .sort()
-            .paginate();
+    const associateId = new mongoose.Types.ObjectId(req.user.userId);
 
-        const jobs = await features.query;
+    let baseQuery = Job.find({ associateId })
+        .populate("clientId", "name email")
+        .populate("associateId", "name email");
 
-        res.status(200).json({
-            success: true,
-            count: jobs.length,
-            data: jobs
-        });
+    const features = new APIFeatures(baseQuery, req.query)
+        .filter()
+        .sort()
+        .paginate();
+
+    const jobs = await features.query;
+
+    res.status(200).json({
+        success: true,
+        count: jobs.length,
+        data: jobs,
+    });
 });
 
-//“req.user.userId is typically a string extracted from JWT, while new mongoose.Types.ObjectId() converts it into a MongoDB ObjectId. Mongoose usually auto-casts strings, but using ObjectId explicitly ensures type correctness in strict or complex queries.”
 
-exports.getSingleJob = asyncHandler(async (req,res) => {
-        const jobId =  req.params.id;
-        //Validate Id because value comes from params checks for valid format
-        if(!mongoose.Types.ObjectId.isValid(jobId)){
-            throw new AppError("Invalid Job ID", 400);
-        }
+// GET SINGLE JOB
+exports.getSingleJob = asyncHandler(async (req, res) => {
+    const jobId = req.params.id;
 
-        const job = await Job.findById(jobId);
-        if(!job){
-            throw new AppError("Job not Found", 404);
-        }
-        const userId = req.user.userId;
-        const role = req.user.role;
+    if (!mongoose.Types.ObjectId.isValid(jobId)) {
+        throw new AppError("Invalid Job ID", 400);
+    }
 
-        if(role !== "admin" && job.clientId.toString() !== userId && job.associateId.toString() !== userId){
-            throw new AppError("Unauthorized access", 403);
-        }
+    const job = await Job.findById(jobId);
 
-        res.status(200).json({
-            success: true,
-            count: jobs.length,
-            data: job
-        });
+    if (!job) {
+        throw new AppError("Job not found", 404);
+    }
+
+    const userId = req.user.userId;
+    const role = req.user.role;
+
+    if (
+        role !== "admin" &&
+        job.clientId.toString() !== userId &&
+        job.associateId.toString() !== userId
+    ) {
+        throw new AppError("Unauthorized access", 403);
+    }
+
+    res.status(200).json({
+        success: true,
+        data: job,
+    });
 });
 
-exports.updateJobStatus = asyncHandler(async (req,res) => {
-        const jobId = req.params.id;
-        const { status } = req.body;
-        const job = await Job.findById(jobId);
-        if(!job){
-            throw new AppError("Job not found", 404);
-        }
-        const userId = req.user.userId;
-        if(req.user.role !== "client" || job.clientId.toString() !== userId){
-            throw new AppError("Unauthorized access", 403);
-        }
-        const allowedStatus = ["applied","interview","rejected","offer"];
-        if(!allowedStatus.includes(status)){
-            throw new AppError("Invalid Status", 400);
-        }
-        job.status = status;
-        await job.save();
 
-        res.status(200).json({
-            success: true,
-            message: "Status updated",
-            data: job
-        });
+// UPDATE JOB STATUS
+exports.updateJobStatus = asyncHandler(async (req, res) => {
+    const jobId = req.params.id;
+    const { status } = req.body;
+
+    const job = await Job.findById(jobId);
+
+    if (!job) {
+        throw new AppError("Job not found", 404);
+    }
+
+    const userId = req.user.userId;
+
+    if (req.user.role !== "client" || job.clientId.toString() !== userId) {
+        throw new AppError("Unauthorized access", 403);
+    }
+
+    job.status = status;
+    await job.save();
+
+    res.status(200).json({
+        success: true,
+        message: "Status updated",
+        data: job,
+    });
 });
 
-exports.addNote = asyncHandler(async (req,res) => {
-        const jobId = req.params.id;
-        const {text} = req.body;
-        if(!text){
-            throw new AppError("Note text required", 400);
-        }
-        if (text.length > 500) {
-            throw new AppError("Note too long", 400);
-        }
-        const job = await Job.findById(jobId);
-        if(!job){
-            throw new AppError("Job not found", 404);
-        }
-        const userId = req.user.userId;
-        if(req.user.role !== "associate" || job.associateId.toString() !== userId){
-            throw new AppError("Unauthorized access", 403);
-        }
-        job.notes.push({text});
-        await job.save();
-        res.status(200).json({
-            success: true,
-            message: "Note added",
-            data: job
-        });
+
+// ADD NOTE
+exports.addNote = asyncHandler(async (req, res) => {
+    const jobId = req.params.id;
+    const { text } = req.body;
+
+    const job = await Job.findById(jobId);
+
+    if (!job) {
+        throw new AppError("Job not found", 404);
+    }
+
+    const userId = req.user.userId;
+
+    if (req.user.role !== "associate" || job.associateId.toString() !== userId) {
+        throw new AppError("Unauthorized access", 403);
+    }
+
+    job.notes.push({ text });
+    await job.save();
+
+    res.status(200).json({
+        success: true,
+        message: "Note added",
+        data: job,
+    });
 });
