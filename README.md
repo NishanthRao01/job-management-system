@@ -59,23 +59,14 @@ job-platform-backend/
 
 ---
 
-## 🔐 Features Implemented
+## Features
 
-### ✅ Authentication System
-
-* User registration (Client)
-* Secure login using JWT
-* Password hashing with bcrypt
-
-### ✅ Authorization
-
-* Protected routes using middleware
-* Role-based access control (client / associate / admin)
-
-### ✅ Database Integration
-
-* MongoDB connection using Mongoose
-* User schema with role relationships
+- JWT Authentication & Role-Based Access Control
+- Job Management System (Client / Associate workflows)
+- Subscription-Based Access Control
+- Redis Caching (Cache-Aside Pattern)
+- Cache Invalidation Strategy for Data Consistency
+- Filtering, Search & Pagination
 
 ---
 
@@ -87,6 +78,7 @@ Create a `.env` file in the root directory:
 PORT=5000
 MONGO_URI=your_mongodb_connection
 JWT_SECRET=your_secret_key
+REDIS_URL=your_redis_connection
 ```
 
 ---

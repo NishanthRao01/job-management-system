@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const APIFeatures = require("../utils/apiFeatures");
 const asyncHandler = require("../utils/asyncHandler");
 const AppError = require("../utils/AppError");
+const {getCache, setCache, deleteCache} = require("../utils/cache");
 
 // CREATE JOB
 exports.createJob = asyncHandler(async (req, res) => {
@@ -28,6 +29,10 @@ exports.createJob = asyncHandler(async (req, res) => {
         appliedAt: new Date(),
     });
 
+    //Cache Invalidation
+    await deleteCache(`jobs:client:${clientId}:*`);
+    await deleteCache(`jobs:associate:${associateId}:*`);
+
     res.status(201).json({
         success: true,
         message: "Job created successfully",
@@ -42,8 +47,22 @@ exports.getClientJobs = asyncHandler(async (req, res) => {
         throw new AppError("Unauthorized access", 403);
     }
 
-    const clientId = new mongoose.Types.ObjectId(req.user.userId);
+    const userId = req.user.userId;
+    const clientId = new mongoose.Types.ObjectId(userId);
+    const cacheKey = `jobs:client:${userId}:${JSON.stringify(req.query)}`;
 
+    //check cache
+    const cachedData = await getCache(cacheKey);
+    if(cachedData){
+        console.log("Redis Hit");
+        return res.status(200).json({
+            success: true,
+            count: cachedData.count,
+            data: cachedData.data
+        });
+    }
+
+    //DB query
     let baseQuery = Job.find({ clientId })
         .populate("clientId", "name email")
         .populate("associateId", "name email");
@@ -54,11 +73,18 @@ exports.getClientJobs = asyncHandler(async (req, res) => {
         .paginate();
 
     const jobs = await features.query;
+    
+    const response = {
+        count: jobs.length,
+        data: jobs
+    };
+
+    //setCache
+    await setCache(cacheKey,response);
 
     res.status(200).json({
         success: true,
-        count: jobs.length,
-        data: jobs,
+        ...response
     });
 });
 
@@ -69,7 +95,19 @@ exports.getAssociateJobs = asyncHandler(async (req, res) => {
         throw new AppError("Unauthorized access", 403);
     }
 
-    const associateId = new mongoose.Types.ObjectId(req.user.userId);
+    const userId = req.user.userId;
+    const associateId = new mongoose.Types.ObjectId(userId);
+    const cacheKey = `jobs:associate:${userId}:${JSON.stringify(req.query)}`;
+
+    const cachedData = await getCache(cacheKey);
+    if(cachedData){
+        console.log("Redis Hit");
+        return res.status(200).json({
+            success: true,
+            count: cachedData.count,
+            data: cachedData.data
+        });
+    }
 
     let baseQuery = Job.find({ associateId })
         .populate("clientId", "name email")
@@ -82,10 +120,16 @@ exports.getAssociateJobs = asyncHandler(async (req, res) => {
 
     const jobs = await features.query;
 
+    const response = {
+        count: jobs.length,
+        data: jobs
+    };
+
+    await setCache(cacheKey,response);
+
     res.status(200).json({
         success: true,
-        count: jobs.length,
-        data: jobs,
+        ...response
     });
 });
 
@@ -94,8 +138,28 @@ exports.getAssociateJobs = asyncHandler(async (req, res) => {
 exports.getSingleJob = asyncHandler(async (req, res) => {
     const jobId = req.params.id;
 
-    if (!mongoose.Types.ObjectId.isValid(jobId)) {
+    if (!mongoose.Types.ObjectId.isValid(jobId)) { //this doesnt hit db it only checks if it is 24 chars long and if it is a valid hex string 
         throw new AppError("Invalid Job ID", 400);
+    }
+
+    const cacheKey = `job:${jobId}`;
+    const cachedJob = await getCache(cacheKey);
+
+    if(cachedJob){
+        const userId = req.user.userId;
+        const role = req.user.role;
+        if (
+            role !== "admin" &&
+            cachedJob.clientId.toString() !== userId &&
+            cachedJob.associateId.toString() !== userId
+        ){
+            throw new AppError("unauthorized access", 403);
+        }
+
+        return res.status(200).json({
+            success: true,
+            data: cachedJob
+        });
     }
 
     const job = await Job.findById(jobId);
@@ -114,6 +178,8 @@ exports.getSingleJob = asyncHandler(async (req, res) => {
     ) {
         throw new AppError("Unauthorized access", 403);
     }
+
+    await setCache(cacheKey, job.toObject());
 
     res.status(200).json({
         success: true,
@@ -142,6 +208,9 @@ exports.updateJobStatus = asyncHandler(async (req, res) => {
     job.status = status;
     await job.save();
 
+    await deleteCache(`jobs:client:${job.clientId}:*`);
+    await deleteCache(`job:${jobId}`);
+
     res.status(200).json({
         success: true,
         message: "Status updated",
@@ -169,6 +238,9 @@ exports.addNote = asyncHandler(async (req, res) => {
 
     job.notes.push({ text });
     await job.save();
+
+    await deleteCache(`jobs:associate:${job.associateId}:*`);
+    await deleteCache(`job:${jobId}`);
 
     res.status(200).json({
         success: true,
