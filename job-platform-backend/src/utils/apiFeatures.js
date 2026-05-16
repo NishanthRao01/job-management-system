@@ -8,6 +8,9 @@ class APIFeatures {
         if (this.queryString.status) {
             queryObj.status = this.queryString.status;
         }
+        if (this.queryString.clientId) {
+            queryObj.clientId = this.queryString.clientId;
+        }
         if (this.queryString.search) {
             queryObj.$or = [
                 { company: { $regex: this.queryString.search, $options: "i" } },

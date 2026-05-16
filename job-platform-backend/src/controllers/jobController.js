@@ -8,7 +8,7 @@ const {getCache, setCache, deleteCache} = require("../utils/cache");
 
 // CREATE JOB
 exports.createJob = asyncHandler(async (req, res) => {
-    const { clientId, company, role, jobLink } = req.body;
+    const { clientId, company, role, jobLink, resume, descriptionSnippet, keywords, initialNote } = req.body;
     const associateId = req.user.userId;
 
     const client = await User.findById(clientId);
@@ -20,14 +20,23 @@ exports.createJob = asyncHandler(async (req, res) => {
         throw new AppError("Not your client", 403);
     }
 
-    const job = await Job.create({
+    const jobData = {
         clientId,
         associateId,
         company,
         role,
         jobLink,
+        resume,
+        descriptionSnippet,
+        keywords,
         appliedAt: new Date(),
-    });
+    };
+
+    if (initialNote && initialNote.trim().length > 0) {
+        jobData.notes = [{ text: initialNote }];
+    }
+
+    const job = await Job.create(jobData);
 
     //Cache Invalidation
     await deleteCache(`jobs:client:${clientId}:*`);

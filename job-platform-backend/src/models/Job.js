@@ -26,6 +26,7 @@ const jobSchema = new mongoose.Schema(
         },
 
         jobLink: String,
+        resume: String,
 
         descriptionSnippet: String,
 
