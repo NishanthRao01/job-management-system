@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema({
     },
     clientsCount: {
         type: Number,
+        
         default: 0
     },
     assignedAssociate: {

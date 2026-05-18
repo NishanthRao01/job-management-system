@@ -16,17 +16,27 @@ const AssociateChat = () => {
   const selectedClient = clients.find((c: any) => c._id === selectedClientId);
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex gap-6">
+    <div className="h-[calc(100vh-8rem)] flex gap-4 lg:gap-6 animate-fade-in">
       {/* Sidebar */}
-      <div className="w-80 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden shrink-0">
-        <div className="p-4 border-b border-slate-200 bg-slate-50">
-          <h2 className="text-lg font-semibold text-slate-900 flex items-center">
-            <Users className="w-5 h-5 mr-2" /> My Clients
+      <div className="w-72 lg:w-80 bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col overflow-hidden shrink-0">
+        <div className="p-4 border-b border-slate-200 bg-slate-50/50">
+          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+            <Users className="w-4 h-4 text-indigo-600" /> My Clients
           </h2>
         </div>
         <div className="flex-1 overflow-y-auto p-2 space-y-1">
           {isLoading ? (
-            <p className="p-4 text-sm text-slate-500 text-center">Loading clients...</p>
+            <div className="space-y-2 p-2">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex items-center gap-3 p-3">
+                  <div className="skeleton w-10 h-10 rounded-xl"></div>
+                  <div>
+                    <div className="skeleton h-4 w-24 mb-1.5"></div>
+                    <div className="skeleton h-3 w-32"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : clients.length === 0 ? (
             <p className="p-4 text-sm text-slate-500 text-center">No assigned clients yet.</p>
           ) : (
@@ -34,18 +44,22 @@ const AssociateChat = () => {
               <button
                 key={client._id}
                 onClick={() => setSelectedClientId(client._id)}
-                className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
+                className={`w-full text-left px-3 py-3 rounded-xl transition-all duration-200 ${
                   selectedClientId === client._id
-                    ? 'bg-indigo-50 border border-indigo-100'
+                    ? 'bg-indigo-50 border border-indigo-100 shadow-sm'
                     : 'hover:bg-slate-50 border border-transparent'
                 }`}
               >
                 <div className="flex items-center">
-                  <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold mr-3 shrink-0">
+                  <div className={`h-10 w-10 rounded-xl flex items-center justify-center font-bold mr-3 shrink-0 text-sm shadow-sm ${
+                    selectedClientId === client._id
+                      ? 'bg-gradient-to-br from-indigo-500 to-violet-500 text-white shadow-indigo-500/20'
+                      : 'bg-slate-100 text-slate-600'
+                  }`}>
                     {client.name.charAt(0)}
                   </div>
-                  <div>
-                    <h3 className={`text-sm font-medium ${selectedClientId === client._id ? 'text-indigo-900' : 'text-slate-900'}`}>
+                  <div className="min-w-0">
+                    <h3 className={`text-sm font-semibold truncate ${selectedClientId === client._id ? 'text-indigo-900' : 'text-slate-900'}`}>
                       {client.name}
                     </h3>
                     <p className="text-xs text-slate-500 truncate">{client.email}</p>
@@ -62,12 +76,12 @@ const AssociateChat = () => {
         {selectedClientId ? (
           <ChatWindow contactId={selectedClientId} contactName={selectedClient?.name || 'Client'} />
         ) : (
-          <div className="h-full bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col items-center justify-center text-center p-8">
-            <div className="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mb-4">
-              <MessageSquare className="w-8 h-8" />
+          <div className="h-full bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center justify-center text-center p-8">
+            <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-4">
+              <MessageSquare className="w-8 h-8 text-slate-400" />
             </div>
-            <h2 className="text-xl font-semibold text-slate-900 mb-2">Select a client</h2>
-            <p className="text-slate-500 max-w-sm">
+            <h2 className="text-xl font-bold text-slate-900 mb-2">Select a client</h2>
+            <p className="text-slate-500 max-w-sm leading-relaxed">
               Choose a client from the sidebar to view your conversation and send messages.
             </p>
           </div>

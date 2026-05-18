@@ -12,10 +12,11 @@ const Message = require("./src/models/Message");
 const app = express();
 const server = http.createServer(app);
 
-connectDB();
-
 //Middleware
-app.use(cors());
+app.use(cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+}));
 app.use(express.json());
 
 //Routes

@@ -5,6 +5,7 @@ import RoleRoute from './routes/RoleRoute';
 import AuthLayout from './components/layout/AuthLayout';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import HowItWorks from './pages/HowItWorks';
 import DashboardLayout from './components/layout/DashboardLayout';
 import ClientDashboard from './pages/dashboard/ClientDashboard';
 import AssociateDashboard from './pages/dashboard/AssociateDashboard';
@@ -22,8 +23,11 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to={user ? `/dashboard/${user.role}` : '/login'} replace />} />
+        <Route path="/" element={<Navigate to={user ? `/dashboard/${user.role}` : '/how-it-works'} replace />} />
         
+        {/* Public Routes */}
+        <Route path="/how-it-works" element={<HowItWorks />} />
+
         {/* Auth Routes */}
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
