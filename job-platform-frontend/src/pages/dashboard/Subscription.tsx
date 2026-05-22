@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { subscriptionsApi } from '../../api/subscriptions';
 import { Check, Star, Zap } from 'lucide-react';
+import api from "../../api/axios";
 
 const Subscription = () => {
   const [success, setSuccess] = useState('');
@@ -13,24 +14,62 @@ const Subscription = () => {
     queryFn: () => subscriptionsApi.getPlans(),
   });
 
-  const subscribeMutation = useMutation({
-    mutationFn: (planId: string) => subscriptionsApi.createSubscription(planId),
-    onSuccess: () => {
-      setSuccess('Successfully subscribed! An associate has been assigned to you.');
-      setError('');
-      setSubscribingPlanId(null);
-    },
-    onError: (err: any) => {
-      setError(err.response?.data?.message || 'Failed to subscribe.');
-      setSuccess('');
-      setSubscribingPlanId(null);
-    },
-  });
 
-  const handleSubscribe = (planId: string) => {
-    setSubscribingPlanId(planId);
-    subscribeMutation.mutate(planId);
+  const handlePayment = async (planId: string) => {
+    try {
+      setSubscribingPlanId(planId);
+      // create razorpay order
+      const { data } = await api.post(
+        "/payments/create-order",
+        { planId }
+      );
+      const options = {
+        key: data.key,
+        amount: data.order.amount,
+        currency: data.order.currency,
+        name: "Job Management System",
+        description: "Subscription Payment",
+        order_id: data.order.id,
+        handler: async function (response: any) {
+          // verify payment
+          await api.post("/payments/verify", {
+            razorpay_order_id:
+              response.razorpay_order_id,
+            razorpay_payment_id:
+              response.razorpay_payment_id,
+            razorpay_signature:
+              response.razorpay_signature,
+          });
+          // create subscription AFTER verification
+          await subscriptionsApi.createSubscription(planId);
+          setSuccess(
+            "Payment successful and subscription activated!"
+          );
+          setError("");
+          setSubscribingPlanId(null);
+        },
+        modal: {
+          ondismiss: function () {
+            setSubscribingPlanId(null);
+            setError("Payment cancelled");
+          },
+        },
+        theme: {
+          color: "#6366f1",
+        },
+      };
+      const razorpay = new (window as any).Razorpay(options);
+      razorpay.open();
+    } catch (err: any) {
+      console.error(err);
+      setError(
+        err.response?.data?.message ||
+        "Payment failed"
+      );
+      setSubscribingPlanId(null);
+    }
   };
+
 
   const plans = plansData?.data || [];
 
@@ -126,8 +165,8 @@ const Subscription = () => {
                   </ul>
                 </div>
                 <button
-                  onClick={() => handleSubscribe(plan._id)}
-                  disabled={subscribeMutation.isPending}
+                  onClick={() => handlePayment(plan._id)}
+                  disabled={subscribingPlanId === plan._id}
                   className={`mt-8 block w-full py-3 px-6 border border-transparent rounded-xl text-center font-semibold transition-all duration-200 disabled:opacity-50 ${
                     isPopular
                       ? 'text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40'

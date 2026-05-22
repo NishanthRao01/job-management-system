@@ -1,176 +1,199 @@
-# 🚀 Job Management System (Backend)
+# 🚀 Job Management System
 
-A scalable backend system for managing job application services where associates apply to jobs on behalf of clients and track daily activities.
+A full-stack SaaS platform for managing outsourced job application workflows between clients and recruitment associates.
 
----
-
-## 📌 Overview
-
-This project is a backend system built using **Node.js, Express, MongoDB**, and **JWT authentication**.
-
-It enables a structured workflow where:
-
-* Clients subscribe to a service
-* Associates manage job applications for clients
-* All activities (applications, resumes, cover letters) are tracked and visible
+The platform provides subscription management, secure payment integration, real-time communication, role-based workflows, and scalable backend infrastructure for handling job tracking operations efficiently.
 
 ---
 
-## 🧠 Problem It Solves
+## ✨ Features
 
-Job application tracking is often unstructured and chaotic.
-
-This system provides:
-
-* Centralized tracking of applications
-* Transparency between clients and associates
-* Daily activity logging
-* Scalable backend architecture
-
----
-
-## ⚙️ Tech Stack
-
-* **Backend:** Node.js, Express
-* **Database:** MongoDB (Mongoose)
-* **Authentication:** JWT (JSON Web Tokens)
-* **Security:** bcrypt (password hashing)
-* **Environment Management:** dotenv
+- 🔐 JWT Authentication & Role-Based Access Control
+- 💼 Client & Associate Workflow Management
+- 💳 Razorpay Payment Integration
+- 📦 Subscription & Plan Management
+- ⚡ Redis Caching (Cache-Aside Pattern)
+- 💬 Real-Time Chat using Socket.io
+- 📄 Filtering, Search & Pagination
+- 🛡️ Protected Routes & Middleware Authorization
+- 🚀 Scalable REST API Architecture
+- 🧠 Centralized Error Handling
 
 ---
 
-## 🏗️ Project Structure
+## 🏗️ Tech Stack
 
-```
-job-platform-backend/
+### Backend
+- Node.js
+- Express.js
+- MongoDB + Mongoose
+- Redis
+- JWT Authentication
+- Razorpay
+- Socket.io
+
+### Frontend
+- React.js
+- TypeScript
+- Tailwind CSS
+- React Query
+- Axios
+
+---
+
+## 🧠 System Architecture
+
+### Authentication & Authorization
+- JWT-based authentication
+- Middleware-driven route protection
+- Role-based access control for Clients & Associates
+
+### Payment Infrastructure
+Integrated Razorpay payment flow with:
+
+- Order creation
+- Secure checkout
+- Backend payment verification
+- Pending payment tracking
+- Signature validation
+
+### Redis Caching
+Implemented:
+- Cache-Aside Pattern
+- Key-Based Cache Invalidation
+- Optimized dashboard queries
+
+This reduces repeated database calls and improves response times.
+
+---
+
+## 📂 Project Structure
+
+```plaintext
+job-management-system/
 │
-├── src/
-│   ├── config/        # Database configuration
-│   ├── models/        # Mongoose schemas
-│   ├── controllers/   # Business logic
-│   ├── routes/        # API routes
-│   ├── middleware/    # Auth & role-based middleware
+├── job-platform-backend/
+│   ├── src/
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   ├── middleware/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── utils/
+│   │   └── validators/
+│   │
+│   ├── server.js
+│   └── package.json
 │
-├── .env               # Environment variables (not committed)
-├── .env.example       # Sample env file
-├── server.js          # Entry point
-├── package.json
+├── frontend/
+│   ├── src/
+│   ├── public/
+│   └── package.json
 ```
-
----
-
-## Features
-
-- JWT Authentication & Role-Based Access Control
-- Job Management System (Client / Associate workflows)
-- Subscription-Based Access Control
-- Redis Caching (Cache-Aside Pattern)
-- Cache Invalidation Strategy for Data Consistency
-- Filtering, Search & Pagination
 
 ---
 
 ## 🔑 Environment Variables
 
-Create a `.env` file in the root directory:
+Create a `.env` file inside the backend directory.
 
-```
+```env
 PORT=5000
-MONGO_URI=your_mongodb_connection
-JWT_SECRET=your_secret_key
-REDIS_URL=your_redis_connection
+
+MONGO_URI=your_mongodb_uri
+
+JWT_SECRET=your_jwt_secret
+
+REDIS_URL=your_redis_url
+
+RAZORPAY_KEY_ID=your_key
+
+RAZORPAY_KEY_SECRET=your_secret
+
+CLIENT_URL=your_frontend_url
 ```
 
 ---
 
 ## 🚀 Getting Started
 
-### 1. Clone the repository
+### Clone Repository
 
-```
+```bash
 git clone https://github.com/YOUR_USERNAME/job-management-system.git
-cd job-management-system/job-platform-backend
 ```
 
-### 2. Install dependencies
+### Install Backend Dependencies
 
-```
+```bash
+cd job-platform-backend
 npm install
 ```
 
-### 3. Run the server
+### Run Backend
 
+```bash
+npm run dev
 ```
+
+### Install Frontend Dependencies
+
+```bash
+cd frontend
+npm install
+```
+
+### Run Frontend
+
+```bash
 npm run dev
 ```
 
 ---
 
-## 🧪 API Endpoints
+## 📡 Core Modules
 
-### 🔹 Auth Routes
-
-| Method | Endpoint           | Description     |
-| ------ | ------------------ | --------------- |
-| POST   | /api/auth/register | Register client |
-| POST   | /api/auth/login    | Login user      |
-
----
-
-### 🔹 Test Routes
-
-| Method | Endpoint                 | Description           |
-| ------ | ------------------------ | --------------------- |
-| GET    | /api/test/protected      | Protected route (JWT) |
-| GET    | /api/test/associate-only | Role-based access     |
+- Authentication
+- Payments
+- Plans & Subscriptions
+- Job Management
+- Associate Assignment
+- Messaging System
+- Protected Dashboard Operations
 
 ---
 
-## 🔒 Authentication Usage
+## 📈 Future Improvements
 
-Send JWT token in headers:
-
-```
-Authorization: Bearer <your_token>
-```
-
----
-
-## 🧠 Future Improvements
-
-* Job management APIs (core feature)
-* Activity tracking per job
-* Associate-client assignment logic
-* Dashboard analytics
-* Chrome extension integration
-* Payment & subscription system
+- Webhook-driven subscription lifecycle management
+- Admin analytics dashboard
+- Queue-based background processing
+- Resume parsing workflows
+- Notification infrastructure
+- Activity audit logs
 
 ---
 
-## 📈 Learning Outcome
+## 🧠 Key Learnings
 
-This project demonstrates:
+This project helped strengthen understanding of:
 
-* Backend architecture design
-* Authentication & authorization
-* REST API development
-* Secure coding practices
-* Real-world problem solving
-
----
-
-## 🤝 Contribution
-
-This is a personal learning project. Contributions and suggestions are welcome.
+- SaaS workflow architecture
+- Secure payment systems
+- Redis caching strategies
+- Real-time communication systems
+- Authentication & authorization
+- API scalability patterns
+- Backend system design
 
 ---
 
 ## 📌 Author
 
-**Nishanth**
+**Nishanth Rao**
 
 ---
 
-## ⚡ Note
+## ⚠️ Note
 
-This project is being built from scratch with a focus on understanding system design and backend fundamentals rather than relying on generated code.
+This project is actively evolving with a focus on building scalable backend systems and production-grade SaaS architecture.

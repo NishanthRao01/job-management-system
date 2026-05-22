@@ -18,6 +18,7 @@ const subscriptionRoutes = require("./src/routes/subscriptionRoutes");
 const planRoutes = require("./src/routes/planRoutes");
 const userRoutes = require("./src/routes/userRoutes");
 const messageRoutes = require("./src/routes/messageRoutes");
+const paymentRoutes = require("./src/routes/paymentRoutes");
 
 // Middleware
 const errorHandler = require("./src/middleware/errorMiddleware");
@@ -25,8 +26,6 @@ const errorHandler = require("./src/middleware/errorMiddleware");
 // Initialize Express App
 const app = express();
 const server = http.createServer(app);
-
-
 
 // SECURITY MIDDLEWARE
 
@@ -68,6 +67,7 @@ app.use("/api/subscriptions", subscriptionRoutes);
 app.use("/api/plans", planRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/payments", paymentRoutes);
 
 
 // HEALTH CHECK
