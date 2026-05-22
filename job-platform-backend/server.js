@@ -50,9 +50,6 @@ app.use(
   })
 );
 
-
-
-
 // BODY PARSER
 
 app.use(express.json());
