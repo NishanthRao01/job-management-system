@@ -1,6 +1,7 @@
 const razorpay = require("../config/razorpay");
 const Plan = require("../models/Plan");
 const Payment = require("../models/Payment");
+const Subscription = require("../models/Subscription");
 
 const asyncHandler = require("../utils/asyncHandler");
 const AppError = require("../utils/AppError");
@@ -17,6 +18,18 @@ exports.createOrder = asyncHandler(async (req, res) => {
 
     if (!plan) {
         throw new AppError("Plan not found", 404);
+    }
+
+    const existingSubscription = await Subscription.findOne({
+        client: req.user.id,
+        status: "active",
+    });
+    
+    if (existingSubscription) {
+        throw new AppError(
+            "Active subscription already exists",
+            400
+        );
     }
 
     // create razorpay order
