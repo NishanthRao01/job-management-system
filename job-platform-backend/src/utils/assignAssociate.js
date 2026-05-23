@@ -1,4 +1,6 @@
 const User = require("../models/User");
+const AppError = require("../utils/AppError");
+
 const assignAssociate = async () => {
     const associate = await User.find({role: "associate"})
         .sort({ clientsCount: 1})

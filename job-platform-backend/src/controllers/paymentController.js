@@ -2,6 +2,9 @@ const razorpay = require("../config/razorpay");
 const Plan = require("../models/Plan");
 const Payment = require("../models/Payment");
 const Subscription = require("../models/Subscription");
+const {
+    createSubscriptionForClient,
+} = require("../services/subscriptionService");
 
 const asyncHandler = require("../utils/asyncHandler");
 const AppError = require("../utils/AppError");
@@ -21,7 +24,7 @@ exports.createOrder = asyncHandler(async (req, res) => {
     }
 
     const existingSubscription = await Subscription.findOne({
-        client: req.user.id,
+        clientId: req.user.id,
         status: "active",
     });
     
@@ -103,6 +106,10 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
     payment.razorpaySignature = razorpay_signature;
 
     await payment.save();
+    await createSubscriptionForClient(
+        payment.user,
+        payment.plan
+    );
 
     res.status(200).json({
         success: true,

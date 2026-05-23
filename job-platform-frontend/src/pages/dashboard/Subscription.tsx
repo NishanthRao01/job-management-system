@@ -41,7 +41,6 @@ const Subscription = () => {
               response.razorpay_signature,
           });
           // create subscription AFTER verification
-          await subscriptionsApi.createSubscription(planId);
           setSuccess(
             "Payment successful and subscription activated!"
           );

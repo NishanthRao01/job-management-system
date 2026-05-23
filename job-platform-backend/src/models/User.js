@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ["client","associate"], //allows only specifed values ensuring data consistency
+        enum: ["client","associate","admin"], //allows only specifed values ensuring data consistency
         required: true,
     },
     clientsCount: {
@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
     },
+    isAvailable: {
+        type: Boolean,
+        default: true
+    }
 },{ timestamps:  true }); // automatically adds createdAt, updatedAt
 
 module.exports = mongoose.model("User", userSchema);
