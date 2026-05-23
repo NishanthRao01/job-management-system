@@ -110,6 +110,19 @@ exports.verifyPayment = asyncHandler(async (req, res) => {
         payment.user,
         payment.plan
     );
+    await createAuditLog({
+        action: "PAYMENT_VERIFIED",
+    
+        performedBy: payment.user,
+    
+        targetUser: payment.user,
+    
+        details: {
+            paymentId: payment._id,
+            amount: payment.amount,
+            razorpayPaymentId,
+        },
+    });
 
     res.status(200).json({
         success: true,

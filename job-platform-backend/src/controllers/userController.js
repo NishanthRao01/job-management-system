@@ -10,9 +10,9 @@ exports.getAssignedClients = asyncHandler(async (req, res) => {
 
     const associateId = req.user.userId;
     
-    const clients = await User.find({ 
-        role: "client", 
-        assignedAssociate: associateId 
+    const clients = await User.find({
+        role: "client",
+        assignedAssociate: associateId
     }).select("-password");
 
     res.status(200).json({

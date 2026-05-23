@@ -19,9 +19,14 @@ const planRoutes = require("./src/routes/planRoutes");
 const userRoutes = require("./src/routes/userRoutes");
 const messageRoutes = require("./src/routes/messageRoutes");
 const paymentRoutes = require("./src/routes/paymentRoutes");
+const adminRoutes = require("./src/routes/adminRoutes");
 
 // Middleware
 const errorHandler = require("./src/middleware/errorMiddleware");
+
+//cron for job expiry
+const runSubscriptionExpiryJob =
+    require("./src/cron/subscriptionExpiryJob");
 
 // Initialize Express App
 const app = express();
@@ -65,6 +70,7 @@ app.use("/api/plans", planRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/admin", adminRoutes);
 
 
 // HEALTH CHECK
@@ -175,3 +181,4 @@ const startServer = async () => {
 };
 
 startServer();
+runSubscriptionExpiryJob();
