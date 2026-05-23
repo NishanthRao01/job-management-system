@@ -8,6 +8,7 @@ const rateLimit = require("express-rate-limit");
 const jwt = require("jsonwebtoken");
 
 const connectDB = require("./src/config/db");
+const { connectRedis } = require("./src/config/redis");
 const Message = require("./src/models/Message");
 
 // Route Imports
@@ -169,16 +170,22 @@ const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
   try {
+
+    // MongoDB Connection
     await connectDB();
 
+    // Redis Connection
+    await connectRedis();
+
+    // Start Server
     server.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
 
   } catch (err) {
     console.error("Failed to start server:", err);
+    process.exit(1);
   }
 };
-
 startServer();
 runSubscriptionExpiryJob();
