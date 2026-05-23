@@ -24,7 +24,7 @@ exports.createOrder = asyncHandler(async (req, res) => {
     }
 
     const existingSubscription = await Subscription.findOne({
-        clientId: req.user.id,
+        clientId: userId,
         status: "active",
     });
     
