@@ -16,6 +16,12 @@ import JobDetails from './pages/dashboard/JobDetails';
 import MyClients from './pages/dashboard/MyClients';
 import ClientChat from './pages/dashboard/ClientChat';
 import AssociateChat from './pages/dashboard/AssociateChat';
+import AdminLayout from './components/layout/AdminLayout';
+import Associates from './pages/admin/Associates';
+import Clients from './pages/admin/Clients';
+import Subscriptions from './pages/admin/Subscriptions';
+import Payments from './pages/admin/Payments';
+import AuditLogs from './pages/admin/AuditLogs';
 
 const App = () => {
   const { user } = useAuth();
@@ -53,8 +59,49 @@ const App = () => {
               <Route path="/dashboard/associate/chat" element={<AssociateChat />} />
             </Route>
 
-            <Route element={<RoleRoute allowedRoles={['admin']} />}>
-              <Route path="/dashboard/admin" element={<AdminDashboard />} />
+            <Route
+            element={
+              <RoleRoute allowedRoles={['admin']} />
+            }
+          >
+
+            <Route
+              path="/dashboard/admin"
+              element={<AdminLayout />}
+            >
+
+              <Route
+                index
+                element={<AdminDashboard />}
+              />
+
+              <Route
+                path="associates"
+                element={<Associates />}
+              />
+
+              <Route
+                path="clients"
+                element={<Clients />}
+              />
+
+              <Route
+                path="subscriptions"
+                element={<Subscriptions />}
+              />
+
+              <Route
+                path="payments"
+                element={<Payments />}
+              />
+
+              <Route
+                path="audit-logs"
+                element={<AuditLogs />}
+              />
+
+            </Route>
+
             </Route>
             
           </Route>

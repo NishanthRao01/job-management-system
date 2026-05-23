@@ -10,6 +10,7 @@ const {
     reassignAssociate,
     getAllSubscriptions,
     getAllPayments,
+    getAuditLogs,
 } = require("../controllers/adminController");
 
 const {
@@ -52,6 +53,11 @@ router.get(
 router.get(
     "/payments",
     getAllPayments
+);
+
+router.get(
+    "/audit-logs",
+    getAuditLogs
 );
 
 module.exports = router;

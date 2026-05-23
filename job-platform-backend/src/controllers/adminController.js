@@ -9,6 +9,9 @@ const Subscription =
 const Payment =
     require("../models/Payment");
 
+const AuditLog =
+    require("../models/AuditLog");
+
 const AppError =
     require("../utils/AppError");
 
@@ -330,3 +333,16 @@ exports.toggleAssociateAvailability =
         });
 
     });
+
+exports.getAuditLogs = asyncHandler(async (req, res) => {
+    const logs = await AuditLog.find()
+        .populate("performedBy", "name email role")
+        .populate("targetUser", "name email role")
+        .sort({ createdAt: -1 });
+
+    res.status(200).json({
+        success: true,
+        count: logs.length,
+        data: logs,
+    });
+});

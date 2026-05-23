@@ -6,6 +6,7 @@ const {
     createSubscriptionForClient,
 } = require("../services/subscriptionService");
 
+const createAuditLog = require("../utils/createAuditLog");
 const asyncHandler = require("../utils/asyncHandler");
 const AppError = require("../utils/AppError");
 

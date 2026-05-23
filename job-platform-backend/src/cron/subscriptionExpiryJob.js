@@ -6,6 +6,8 @@ const Subscription =
 const User =
     require("../models/User");
 
+const createAuditLog = require("../utils/createAuditLog");
+
 const runSubscriptionExpiryJob =
     () => {
 
@@ -59,7 +61,7 @@ const runSubscriptionExpiryJob =
                             null;
 
                         await client.save();
-                        
+
                         await createAuditLog({
                             action: "SUBSCRIPTION_EXPIRED",
                         
