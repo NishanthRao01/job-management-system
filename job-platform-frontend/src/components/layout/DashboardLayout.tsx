@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Outlet, useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { LogOut, LayoutDashboard, Users, CreditCard, MessageSquare, Menu, X, Briefcase } from 'lucide-react';
+import { LogOut, LayoutDashboard, Users, CreditCard, MessageSquare, Menu, X } from 'lucide-react';
 
 const DashboardLayout = () => {
   const { user, logout } = useAuth();
@@ -25,14 +25,13 @@ const DashboardLayout = () => {
   const SidebarContent = () => (
     <>
       {/* Brand */}
-      <div className="h-16 flex items-center px-6 border-b border-slate-200/80">
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-lg flex items-center justify-center shadow-md shadow-indigo-500/20 group-hover:shadow-indigo-500/40 transition-shadow">
-            <Briefcase className="w-4 h-4 text-white" />
-          </div>
-          <span className="text-lg font-bold text-slate-900 tracking-tight">
-            Job<span className="text-indigo-600">Flow</span>
-          </span>
+      <div className="h-16 flex items-center px-6 border-b border-zinc-100 bg-[#fafafa]/50">
+        <Link to="/" className="flex items-center group transition-opacity hover:opacity-90">
+          <img 
+            src="/brand/logos/handlr-logo-black.svg" 
+            alt="Handlr Logo" 
+            className="h-6 w-auto select-none"
+          />
         </Link>
       </div>
 
@@ -46,18 +45,18 @@ const DashboardLayout = () => {
                 key={item.name}
                 to={item.path}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 group ${
+                className={`flex items-center px-3 py-2 text-xs font-semibold rounded-lg transition-all duration-150 group ${
                   isActive
-                    ? 'bg-indigo-50 text-indigo-700 shadow-sm shadow-indigo-100'
-                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                    ? 'bg-zinc-900 text-white shadow-sm'
+                    : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950'
                 }`}
               >
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center mr-3 transition-all duration-200 ${
+                <div className={`w-5 h-5 rounded flex items-center justify-center mr-2.5 transition-colors ${
                   isActive
-                    ? 'bg-indigo-600 shadow-md shadow-indigo-500/30'
-                    : 'bg-slate-100 group-hover:bg-slate-200'
+                    ? 'text-white'
+                    : 'text-zinc-400 group-hover:text-zinc-700'
                 }`}>
-                  <item.icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-slate-700'}`} />
+                  <item.icon className="w-4 h-4" />
                 </div>
                 {item.name}
               </Link>
@@ -67,15 +66,15 @@ const DashboardLayout = () => {
       </div>
 
       {/* User Profile */}
-      <div className="p-4 border-t border-slate-200/80">
+      <div className="p-4 border-t border-zinc-100 bg-[#fafafa]">
         <div className="flex items-center justify-between">
           <div className="flex items-center min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-indigo-500/20 flex-shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-zinc-950 flex items-center justify-center text-white font-bold text-xs select-none">
               {user?.name?.charAt(0).toUpperCase()}
             </div>
-            <div className="ml-3 overflow-hidden">
-              <p className="text-sm font-semibold text-slate-900 truncate">{user?.name}</p>
-              <p className="text-xs text-slate-500 truncate capitalize flex items-center gap-1">
+            <div className="ml-2.5 overflow-hidden">
+              <p className="text-xs font-bold text-zinc-900 truncate">{user?.name}</p>
+              <p className="text-[10px] text-zinc-400 truncate capitalize flex items-center gap-1 mt-0.5 font-medium">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
                 {user?.role}
               </p>
@@ -83,10 +82,10 @@ const DashboardLayout = () => {
           </div>
           <button
             onClick={handleLogout}
-            className="p-2 text-slate-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-all duration-200"
+            className="p-1.5 text-zinc-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors"
             title="Logout"
           >
-            <LogOut className="w-4.5 h-4.5" />
+            <LogOut className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -94,56 +93,69 @@ const DashboardLayout = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-[#fafafa] flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex w-64 bg-white border-r border-slate-200/80 flex-col fixed inset-y-0 left-0 z-30">
+      <aside className="hidden lg:flex w-60 bg-white border-r border-zinc-100 flex-col fixed inset-y-0 left-0 z-30">
         <SidebarContent />
       </aside>
 
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden animate-fade-in"
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden transition-all duration-200"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
       {/* Mobile Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 w-72 bg-white border-r border-slate-200 flex flex-col z-50 lg:hidden transform transition-transform duration-300 ease-in-out ${
+      <aside className={`fixed inset-y-0 left-0 w-60 bg-white border-r border-zinc-100 flex flex-col z-50 lg:hidden transform transition-transform duration-200 ease-in-out ${
         isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         <SidebarContent />
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden lg:ml-64">
-        <header className="h-16 bg-white border-b border-slate-200/80 flex items-center px-4 sm:px-8 shadow-sm z-10 sticky top-0">
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 -ml-1 mr-3 text-slate-500 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition-colors"
-          >
-            {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden lg:ml-60">
+        <header className="h-16 bg-white border-b border-zinc-100 flex items-center px-6 sm:px-8 justify-between z-10 sticky top-0">
+          <div className="flex items-center gap-3">
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden p-1.5 text-zinc-500 hover:text-zinc-800 rounded-lg hover:bg-zinc-100 transition-colors"
+            >
+              {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            </button>
 
-          <div className="flex items-center justify-between w-full">
-            <div>
-              <h2 className="text-lg font-bold text-slate-900">
+            {/* Mobile Header Logo */}
+            <div className="lg:hidden flex items-center select-none">
+              <img 
+                src="/brand/logos/handlr-logo-black.svg" 
+                alt="Handlr" 
+                className="h-5.5 w-auto"
+              />
+            </div>
+
+            <div className="hidden sm:block">
+              <h2 className="text-xs sm:text-sm font-bold text-zinc-800 tracking-tight">
                 {navItems.find((item) => item.path === location.pathname)?.name || 'Dashboard'}
               </h2>
-              <p className="text-xs text-slate-500 hidden sm:block">
-                Welcome back, {user?.name?.split(' ')[0]} 👋
-              </p>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="hidden sm:inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100 capitalize">
-                {user?.role}
-              </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold bg-zinc-100 text-zinc-700 capitalize border border-zinc-200">
+              {user?.role}
+            </span>
+            <div className="text-xs text-zinc-400 font-semibold hidden md:block">
+              Welcome back, <span className="text-zinc-700 font-bold">{user?.name?.split(' ')[0]}</span> 👋
             </div>
           </div>
         </header>
-        <div className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">
-          <Outlet />
+
+        <div className="flex-grow overflow-auto p-4 sm:p-6 lg:p-8">
+          <div className="max-w-7xl mx-auto">
+            <Outlet />
+          </div>
         </div>
       </main>
     </div>

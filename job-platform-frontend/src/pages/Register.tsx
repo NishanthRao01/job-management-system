@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authApi } from '../api/auth';
 import { UserPlus, Eye, EyeOff } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -29,91 +30,94 @@ const Register = () => {
   };
 
   return (
-    <div className="animate-fade-in">
-      <div className="mb-8">
-        <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Create your account</h3>
-        <p className="mt-1 text-sm text-slate-500">Start tracking your job applications today</p>
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+      className="space-y-6"
+    >
+      <div>
+        <h3 className="text-xl font-semibold text-zinc-900 tracking-tight">Create your account</h3>
+        <p className="mt-1.5 text-xs text-zinc-500">Sign up as a client to streamline and outsource your application workflow.</p>
       </div>
 
       {error && (
-        <div className="mb-5 bg-red-50 border border-red-200 rounded-xl p-4 animate-scale-in">
-          <p className="text-sm text-red-700 font-medium">{error}</p>
+        <div className="bg-red-50 border border-red-200/50 rounded-lg p-3 text-xs text-red-700 font-medium animate-fade-in">
+          {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1.5">Full Name</label>
+          <label className="block text-xs font-semibold text-zinc-600 mb-1.5">Full Name</label>
           <input
             type="text"
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="appearance-none block w-full px-4 py-2.5 border border-slate-300 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm transition-all duration-200"
+            className="premium-input focus:ring-1 focus:ring-[#4866C8]/10"
             placeholder="John Doe"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1.5">Email address</label>
+          <label className="block text-xs font-semibold text-zinc-600 mb-1.5">Email address</label>
           <input
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="appearance-none block w-full px-4 py-2.5 border border-slate-300 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm transition-all duration-200"
+            className="premium-input focus:ring-1 focus:ring-[#4866C8]/10"
             placeholder="you@example.com"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-1.5">Password</label>
+          <label className="block text-xs font-semibold text-zinc-600 mb-1.5">Password</label>
           <div className="relative">
             <input
               type={showPassword ? 'text' : 'password'}
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="appearance-none block w-full px-4 py-2.5 pr-10 border border-slate-300 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-sm transition-all duration-200"
+              className="premium-input pr-10 focus:ring-1 focus:ring-[#4866C8]/10"
               placeholder="••••••••"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-zinc-600 transition-colors"
             >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
             </button>
           </div>
         </div>
 
-        <div>
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full flex justify-center items-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 hover:shadow-lg hover:shadow-indigo-500/25"
-          >
-            {isLoading ? (
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-              <>
-                <UserPlus className="w-4 h-4 mr-2" />
-                Create Account
-              </>
-            )}
-          </button>
-        </div>
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full flex justify-center items-center py-2.5 px-4 rounded-lg text-xs font-semibold text-white bg-zinc-950 hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+        >
+          {isLoading ? (
+            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          ) : (
+            <>
+              <UserPlus className="w-3.5 h-3.5 mr-2" />
+              Create Account
+            </>
+          )}
+        </button>
       </form>
 
-      <div className="mt-6 text-center">
-        <p className="text-sm text-slate-600">
+      <div className="text-center pt-2 border-t border-zinc-100">
+        <p className="text-xs text-zinc-500">
           Already have an account?{' '}
-          <Link to="/login" className="font-semibold text-indigo-600 hover:text-indigo-500 transition-colors">
+          <Link to="/login" className="font-semibold text-[#4866C8] hover:text-[#3753a8] transition-colors">
             Sign in
           </Link>
         </p>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

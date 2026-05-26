@@ -1,103 +1,161 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Briefcase, Users, Shield, Zap, Database, Globe, MessageSquare,
-  ArrowRight, CheckCircle2, Lock, Server, Layers, BarChart3,
-  Smartphone, Code2, ChevronRight, Cpu, ArrowDown,
+  Briefcase, Users, Shield, Zap, MessageSquare,
+  ArrowRight, Lock, Layers, BarChart3,
+  Code2, Cpu, ArrowDown, ChevronDown, Check, HelpCircle
 } from 'lucide-react';
+
+const FADE_IN_UP = {
+  hidden: { opacity: 0, y: 8 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const } }
+};
 
 const WORKFLOW_STEPS = [
   {
     step: '01',
-    title: 'Client Subscribes',
-    description: 'Client signs up, chooses a subscription plan, and gets automatically assigned a dedicated associate.',
+    title: 'Subscribe & Match',
+    description: 'Select an application operations plan. We immediately match you with a dedicated career associate aligned with your background.',
     icon: Users,
-    color: 'from-blue-500 to-indigo-600',
+    detail: 'Manual matching takes under 24 hours.'
   },
   {
     step: '02',
-    title: 'Associate Applies for Jobs',
-    description: 'The assigned associate searches for relevant positions and submits applications on behalf of the client.',
+    title: 'Search & Tailor',
+    description: 'Your associate searches across top portals, filters by your criteria, and crafts customized application profiles.',
     icon: Briefcase,
-    color: 'from-indigo-500 to-violet-600',
+    detail: 'Every resume version is logged transparently.'
   },
   {
     step: '03',
-    title: 'Applications Are Tracked',
-    description: 'Every application is logged with company, role, status, resume link, and notes — all visible to both parties.',
-    icon: BarChart3,
-    color: 'from-violet-500 to-purple-600',
+    title: 'Outsource the Administrative Chaos',
+    description: 'We handle the forms, external portals, and basic listings. You receive high-clarity alerts for interviews.',
+    icon: Layers,
+    detail: 'Eliminates up to 15 hours of fatigue weekly.'
   },
   {
     step: '04',
-    title: 'Status Updates in Real-Time',
-    description: 'Client updates job status (Applied → Interview → Offer/Rejected). Associate adds notes and context.',
-    icon: Zap,
-    color: 'from-purple-500 to-pink-600',
-  },
-  {
-    step: '05',
-    title: 'Real-Time Communication',
-    description: 'Client and associate communicate via built-in real-time chat powered by Socket.io.',
-    icon: MessageSquare,
-    color: 'from-pink-500 to-rose-600',
-  },
-  {
-    step: '06',
-    title: 'Data Persisted & Cached',
-    description: 'All data is stored in MongoDB with Redis caching for fast retrieval. JWT secures every request.',
-    icon: Database,
-    color: 'from-rose-500 to-red-600',
-  },
-];
-
-const TECH_STACK = [
-  { name: 'React', category: 'Frontend', color: 'bg-cyan-100 text-cyan-700 border-cyan-200' },
-  { name: 'TypeScript', category: 'Frontend', color: 'bg-blue-100 text-blue-700 border-blue-200' },
-  { name: 'Tailwind CSS', category: 'Styling', color: 'bg-teal-100 text-teal-700 border-teal-200' },
-  { name: 'React Query', category: 'State', color: 'bg-orange-100 text-orange-700 border-orange-200' },
-  { name: 'Node.js', category: 'Backend', color: 'bg-green-100 text-green-700 border-green-200' },
-  { name: 'Express.js', category: 'Backend', color: 'bg-slate-100 text-slate-700 border-slate-200' },
-  { name: 'MongoDB', category: 'Database', color: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
-  { name: 'Redis', category: 'Cache', color: 'bg-red-100 text-red-700 border-red-200' },
-  { name: 'JWT', category: 'Auth', color: 'bg-purple-100 text-purple-700 border-purple-200' },
-  { name: 'Socket.io', category: 'Real-time', color: 'bg-indigo-100 text-indigo-700 border-indigo-200' },
-  { name: 'Zod', category: 'Validation', color: 'bg-amber-100 text-amber-700 border-amber-200' },
-  { name: 'Vite', category: 'Tooling', color: 'bg-violet-100 text-violet-700 border-violet-200' },
+    title: 'Cohesive Live Pipeline',
+    description: 'Watch your career workspace update in real time. Coordinate next steps, interview dates, and offer letters.',
+    icon: BarChart3,
+    detail: 'Full historical audit trail included.'
+  }
 ];
 
 const FEATURES = [
-  { title: 'Secure Authentication', description: 'JWT-based auth with hashed passwords and protected routes', icon: Lock },
-  { title: 'Role-Based Access', description: 'Client, Associate, and Admin roles with granular permissions', icon: Shield },
-  { title: 'Real-Time Chat', description: 'Socket.io powered messaging between clients and associates', icon: MessageSquare },
-  { title: 'Dashboard Analytics', description: 'Track application counts, statuses, and activity overview', icon: BarChart3 },
-  { title: 'Job Tracking Pipeline', description: 'Full lifecycle tracking: Applied → Interview → Offer/Rejected', icon: Layers },
-  { title: 'Responsive Design', description: 'Fully responsive UI that works seamlessly on all devices', icon: Smartphone },
+  { 
+    title: 'Operational Transparency', 
+    description: 'Zero black holes. View every application resume, link, tracking code, and timestamp instantly inside your dashboard.', 
+    icon: Shield 
+  },
+  { 
+    title: 'Built-in Real-time Chat', 
+    description: 'Communicate directly with your assigned associate using instant message sync powered by Socket.io.', 
+    icon: MessageSquare 
+  },
+  { 
+    title: 'JWT Protected Access', 
+    description: 'Your resumes, applications, private emails, and personal information are secured with state-of-the-art authentication.', 
+    icon: Lock 
+  },
+  { 
+    title: 'High-Response Workflows', 
+    description: 'Update application states seamlessly (Applied → Interview → Offer). We sync caching using Redis for instant dashboard loads.', 
+    icon: Zap 
+  },
+  { 
+    title: 'Dedicated Focus', 
+    description: 'We are structured for NRS job seekers, busy professionals, and international graduates requiring rigorous operational support.', 
+    icon: Users 
+  },
+  { 
+    title: 'No Automation Gimmicks', 
+    description: 'We do not run spam bot applications. Real professionals execute real, high-quality applications manually.', 
+    icon: Cpu 
+  }
 ];
 
-const ARCHITECTURE_LAYERS = [
-  { label: 'React Frontend', sub: 'Vite + TypeScript + TailwindCSS', icon: Globe, color: 'from-cyan-500 to-blue-600' },
-  { label: 'API Layer', sub: 'Axios + React Query', icon: ChevronRight, color: 'from-blue-500 to-indigo-600' },
-  { label: 'Express Backend', sub: 'Node.js + REST API + Socket.io', icon: Server, color: 'from-indigo-500 to-violet-600' },
-  { label: 'Data Layer', sub: 'MongoDB + Redis Cache', icon: Database, color: 'from-violet-500 to-purple-600' },
+const FAQS = [
+  {
+    q: "How does the dedicated associate workflow function?",
+    a: "Once subscribed, you upload your resume variants, criteria, and target roles. A dedicated associate is manually matched to your account. They actively source and submit job applications on your behalf daily, keeping a highly organized ledger of every single submission inside your dashboard."
+  },
+  {
+    q: "Are the applications high-quality or automated bots?",
+    a: "We are strictly against bot spam. Automated bots trigger platform flags and lead to mass rejections. Your associate reviews descriptions, checks qualifications, aligns your resume variants, and applies manually just as you would—only faster and without the mental fatigue."
+  },
+  {
+    q: "Can I communicate with my associate?",
+    a: "Yes. Handlr has a dedicated, built-in real-time chat platform. You can coordinate resume tweaks, clarify role criteria, ask questions, or provide updates immediately."
+  },
+  {
+    q: "What countries and roles do you support?",
+    a: "We support job seekers looking for professional opportunities globally, with a strong focus on high-demand tech, engineering, business, operations, and finance roles in the US, UK, Canada, and Europe."
+  }
+];
+
+const PRICING_PLANS = [
+  {
+    name: 'Core',
+    price: '$99',
+    period: '/month',
+    desc: 'A streamlined application management plan with dedicated human support.',
+    features: [
+      'Up to 350 tailored applications / month',
+      'Dedicated associate support',
+      'Real-time workspace tracking',
+      'Resume customization support',
+      'Interview update notifications',
+      'Built-in chat access'
+    ],
+    popular: false,
+    cta: 'Get Started'
+  },
+  {
+    name: 'Momentum',
+    price: '$149',
+    period: '/month',
+    desc: 'Higher-volume outreach with faster execution and priority coordination.',
+    features: [
+      'Up to 500 tailored applications / month',
+      'Priority associate matching',
+      'Faster application turnaround',
+      'Resume variant optimization',
+      'Priority live support',
+      'Interview coordination assistance'
+    ],
+    popular: true,
+    cta: 'Start Momentum'
+  }
 ];
 
 const HowItWorks = () => {
+  const [activeFaq, setActiveFaq] = useState<number | null>(null);
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* ─── Navigation ─────────────────────────────────────── */}
-      <nav className="fixed top-0 inset-x-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center shadow-md shadow-indigo-500/20">
-              <Briefcase className="w-4.5 h-4.5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-slate-900">Job<span className="text-indigo-600">Flow</span></span>
+    <div className="min-h-screen bg-[#fafafa] text-zinc-900 selection:bg-[#4866C8]/10 selection:text-[#4866C8]">
+      {/* ─── Navigation Header ───────────────────────────────── */}
+      <nav className="fixed top-0 inset-x-0 z-50 bg-[#fafafa]/85 backdrop-blur-md border-b border-zinc-200/40">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link to="/" className="flex items-center group transition-opacity hover:opacity-90 select-none">
+            <img 
+              src="/brand/logos/handlr-logo-black.svg" 
+              alt="Handlr Logo" 
+              className="h-6 w-auto"
+            />
           </Link>
-          <div className="flex items-center gap-3">
-            <Link to="/login" className="text-sm font-semibold text-slate-700 hover:text-indigo-600 transition-colors px-3 py-1.5 rounded-lg hover:bg-slate-50">
-              Login
+          <div className="flex items-center gap-4">
+            <Link 
+              to="/login" 
+              className="text-xs font-semibold text-zinc-600 hover:text-zinc-950 transition-colors px-3 py-1.5 rounded-lg bg-zinc-50 border border-zinc-200/30 hover:border-zinc-300"
+            >
+              Sign in
             </Link>
-            <Link to="/register" className="text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-xl transition-all shadow-sm hover:shadow-md">
+            <Link 
+              to="/register" 
+              className="text-xs font-semibold text-white bg-zinc-950 hover:bg-zinc-800 px-4 py-1.5 rounded-lg transition-all shadow-sm border border-zinc-800"
+            >
               Get Started
             </Link>
           </div>
@@ -105,152 +163,209 @@ const HowItWorks = () => {
       </nav>
 
       {/* ─── Hero Section ───────────────────────────────────── */}
-      <section className="pt-32 pb-20 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-violet-50/50 to-slate-50"></div>
-        <div className="absolute top-20 left-1/4 w-72 h-72 bg-indigo-200/30 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-violet-200/20 rounded-full blur-3xl"></div>
+      <section className="relative pt-32 pb-16 px-6 overflow-hidden">
+        {/* Subtle grid pattern overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(#e4e4e7_1px,transparent_1px)] [background-size:32px_32px] opacity-25 -z-10" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[550px] h-[250px] bg-[#4866C8]/2.5 rounded-full blur-3xl -z-10" />
 
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100 text-sm font-semibold text-indigo-700 mb-6 animate-fade-in">
-            <Code2 className="w-4 h-4" />
-            Full-Stack MERN Application
-          </div>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-tight animate-fade-in-up">
-            How <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-600">HireSync</span> Works
-          </h1>
-          <p className="mt-6 text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed animate-fade-in-up delay-200" style={{ animationFillMode: 'both' }}>
-            A production-grade job application management platform that connects clients with dedicated associates who manage their entire job search pipeline.
-          </p>
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up delay-300" style={{ animationFillMode: 'both' }}>
-            <Link to="/login" className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 hover:-translate-y-0.5">
-              Try the Demo <ArrowRight className="w-4 h-4" />
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4 }}
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-zinc-200/80 shadow-sm text-[10px] font-bold text-zinc-600 mb-6"
+          >
+            <Code2 className="w-3.5 h-3.5 text-[#4866C8]" />
+            Full-Stack Professional Operations Platform
+          </motion.div>
+
+          <motion.h1 
+            initial="hidden"
+            animate="visible"
+            variants={FADE_IN_UP}
+            className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-zinc-950 leading-[1.15] max-w-3xl mx-auto"
+          >
+            Job hunting is a chaotic, full-time job. <span className="text-[#4866C8]">We handle the applications.</span>
+          </motion.h1>
+
+          <motion.p 
+            initial="hidden"
+            animate="visible"
+            variants={FADE_IN_UP}
+            className="mt-5 text-sm sm:text-base text-zinc-500 max-w-xl mx-auto leading-relaxed"
+          >
+            A dedicated career operations partner applying to vetted roles, organizing tracking workspaces, and eliminating search fatigue on your behalf.
+          </motion.p>
+
+          <motion.div 
+            initial="hidden"
+            animate="visible"
+            variants={FADE_IN_UP}
+            className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5 max-w-xs sm:max-w-none mx-auto"
+          >
+            <Link 
+              to="/login" 
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-zinc-950 text-white font-semibold rounded-lg text-xs hover:bg-zinc-800 transition-all shadow-sm active:scale-[0.985]"
+            >
+              Access Demo Workspace <ArrowRight className="w-3.5 h-3.5" />
             </Link>
-            <a href="#overview" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-slate-700 font-semibold rounded-xl hover:bg-slate-50 transition-all border border-slate-200 shadow-sm">
-              Learn More <ArrowDown className="w-4 h-4" />
+            <a 
+              href="#overview" 
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-zinc-700 font-semibold rounded-lg text-xs border border-zinc-200 hover:bg-zinc-50 shadow-sm transition-all active:scale-[0.985]"
+            >
+              See How It Works <ArrowDown className="w-3.5 h-3.5" />
             </a>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* ─── Project Overview ───────────────────────────────── */}
-      <section id="overview" className="py-20 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-sm font-bold text-indigo-600 uppercase tracking-wider">Overview</span>
-            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold text-slate-900">What Problem Does This Solve?</h2>
-            <p className="mt-4 text-lg text-slate-600 max-w-3xl mx-auto">
-              Managing job applications across multiple platforms is chaotic. HireSync centralizes the entire process with a delegated workflow model.
+      {/* ─── Interactive Mock Dashboard ─────────────────────── */}
+      <section className="pb-20 px-6 relative max-w-5xl mx-auto">
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="bg-white border border-zinc-200 rounded-xl shadow-md overflow-hidden"
+        >
+          {/* Mock Browser Header */}
+          <div className="bg-zinc-50 border-b border-zinc-200/80 px-4 py-2.5 flex items-center justify-between">
+            <div className="flex gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-zinc-200" />
+              <span className="w-2.5 h-2.5 rounded-full bg-zinc-200" />
+              <span className="w-2.5 h-2.5 rounded-full bg-zinc-200" />
+            </div>
+            <div className="text-[10px] text-zinc-400 font-semibold font-mono select-none">app.handlr.io/dashboard/workspace</div>
+            <div className="w-12" />
+          </div>
+
+          <div className="grid lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-zinc-200 h-[340px] bg-white">
+            {/* Sidebar Mock */}
+            <div className="lg:col-span-3 p-4 bg-zinc-50/50 space-y-4 hidden lg:block">
+              <div className="h-5 w-20 bg-zinc-200 rounded" />
+              <div className="space-y-1.5">
+                <div className="h-7 w-full bg-zinc-200/70 rounded-md" />
+                <div className="h-7 w-full bg-zinc-100 rounded-md" />
+                <div className="h-7 w-full bg-zinc-100 rounded-md" />
+              </div>
+            </div>
+
+            {/* Dashboard Content Mock */}
+            <div className="lg:col-span-9 p-6 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-5">
+                  <div>
+                    <div className="h-4 w-32 bg-zinc-200 rounded mb-1.5" />
+                    <div className="h-3 w-48 bg-zinc-100 rounded" />
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-100 rounded-full">12 Vetted Apps This Week</span>
+                  </div>
+                </div>
+
+                {/* Dashboard Stats */}
+                <div className="grid grid-cols-3 gap-4 mb-5">
+                  {[
+                    { label: 'Applications', value: '47', border: 'border-zinc-200' },
+                    { label: 'Interviews Scheduled', value: '6', border: 'border-zinc-200' },
+                    { label: 'Offers Secured', value: '2', border: 'border-[#4866C8]/25' }
+                  ].map((stat, i) => (
+                    <div key={i} className={`p-3 border rounded-lg bg-zinc-50/20 ${stat.border}`}>
+                      <div className="text-[10px] font-bold text-zinc-400">{stat.label}</div>
+                      <div className="text-lg font-bold text-zinc-950 mt-0.5">{stat.value}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Mock List */}
+                <div className="space-y-2">
+                  <div className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider mb-1">Live Activity Stream</div>
+                  {[
+                    { company: 'Stripe', role: 'Solutions Engineer', status: 'Interview', badge: 'bg-amber-50 text-amber-700 border-amber-200' },
+                    { company: 'Linear', role: 'Frontend Architect', status: 'Applied', badge: 'bg-zinc-100 text-zinc-700 border-zinc-200' },
+                    { company: 'Vercel', role: 'Product Designer', status: 'Offer', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' }
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-center justify-between p-2.5 border border-zinc-100 rounded-lg hover:bg-zinc-50/50 transition-colors text-xs">
+                      <div className="flex items-center gap-4">
+                        <span className="font-bold text-zinc-900">{item.company}</span>
+                        <span className="text-zinc-500">{item.role}</span>
+                      </div>
+                      <span className={`px-2 py-0.5 text-[9px] font-bold border rounded ${item.badge}`}>{item.status}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Mock Status Bar */}
+              <div className="flex items-center justify-between pt-3 border-t border-zinc-100 text-[10px] text-zinc-400 font-medium">
+                <div className="flex items-center gap-1.5">Operational status: <span className="text-emerald-500 font-bold inline-flex items-center"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-1 inline-block"></span>Active Syncing</span></div>
+                <div>Last updated 2 mins ago</div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* ─── Founder's Conviction (Overview) ─────────────────── */}
+      <section id="overview" className="py-20 px-6 border-t border-zinc-200/40 bg-white">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <span className="text-[10px] font-bold tracking-wider text-[#4866C8] uppercase bg-[#eff3ff] px-2.5 py-1 rounded-full">The Reality of Job Search</span>
+            <h2 className="mt-4 text-2xl sm:text-3xl font-extrabold text-zinc-950 tracking-tight animate-fade-in">Job searching is broken.</h2>
+            <p className="mt-4 text-zinc-500 text-xs sm:text-sm leading-relaxed">
+              We know the stress. Endless career boards that lead to automated rejections. Resume customizers that consume your entire evening. Tracking spreadsheets that multiply chaos instead of reducing it.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                title: 'The Problem',
-                description: 'Job seekers struggle to track applications across dozens of platforms. The process is manual, unorganized, and time-consuming.',
-                icon: '😤',
-                bg: 'bg-red-50 border-red-100',
-              },
-              {
-                title: 'The Solution',
-                description: 'HireSync delegates job applications to dedicated associates. Clients subscribe, get matched, and watch their pipeline grow.',
-                icon: '💡',
-                bg: 'bg-green-50 border-green-100',
-              },
-              {
-                title: 'The Users',
-                description: 'Clients who need jobs applied on their behalf, and Associates who professionally manage application pipelines for multiple clients.',
-                icon: '👥',
-                bg: 'bg-blue-50 border-blue-100',
-              },
-            ].map((item) => (
-              <div key={item.title} className={`rounded-2xl border p-8 ${item.bg} card-hover`}>
-                <span className="text-4xl mb-4 block">{item.icon}</span>
-                <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3>
-                <p className="text-slate-600 leading-relaxed">{item.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── User Roles ─────────────────────────────────────── */}
-      <section className="py-20 px-4 bg-gradient-to-br from-slate-50 to-indigo-50/30">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-sm font-bold text-indigo-600 uppercase tracking-wider">Roles</span>
-            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold text-slate-900">Two Sides of the Platform</h2>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Client */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-8 card-hover shadow-sm">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/20">
-                <Users className="w-7 h-7 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">Client</h3>
-              <p className="text-slate-600 mb-6">The job seeker who subscribes and delegates their application process.</p>
-              <ul className="space-y-3">
-                {['Subscribe to plans', 'View application pipeline', 'Update job statuses', 'Chat with assigned associate', 'Track all applications in one place'].map((item) => (
-                  <li key={item} className="flex items-start gap-2 text-sm text-slate-700">
-                    <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <div className="p-6 border border-zinc-200/50 rounded-xl bg-zinc-50/20">
+              <span className="text-xl">😓</span>
+              <h3 className="text-xs sm:text-sm font-bold text-zinc-950 mt-3 mb-1.5">The Old Chaotic Loop</h3>
+              <p className="text-xs text-zinc-500 leading-relaxed">
+                Spend 3 hours a day copying resumes, filling identical input screens on Taleo, Workday, or Greenhouse, and watching your inquiries disappear into digital voids.
+              </p>
             </div>
-
-            {/* Associate */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-8 card-hover shadow-sm">
-              <div className="w-14 h-14 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-violet-500/20">
-                <Briefcase className="w-7 h-7 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">Associate</h3>
-              <p className="text-slate-600 mb-6">The professional who manages job applications on behalf of clients.</p>
-              <ul className="space-y-3">
-                {['Manage multiple clients', 'Submit job applications', 'Add notes and context', 'Track application progress', 'Communicate with clients in real-time'].map((item) => (
-                  <li key={item} className="flex items-start gap-2 text-sm text-slate-700">
-                    <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
+            <div className="p-6 border border-[#4866C8]/20 rounded-xl bg-white shadow-sm">
+              <span className="text-xl">🤝</span>
+              <h3 className="text-xs sm:text-sm font-bold text-[#4866C8] mt-3 mb-1.5">The Vetted Handlr Alternative</h3>
+              <p className="text-xs text-zinc-600 leading-relaxed">
+                Outsource the operational friction to a dedicated associate. Real human tracking, daily customized submissions, direct transparency, and zero automations.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ─── End-to-End Workflow ─────────────────────────────── */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-sm font-bold text-indigo-600 uppercase tracking-wider">Workflow</span>
-            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold text-slate-900">End-to-End Flow</h2>
-            <p className="mt-4 text-lg text-slate-600">From subscription to job offer — here's how the platform works step by step.</p>
+      {/* ─── End-to-End Workflow Timeline ─────────────────────── */}
+      <section className="py-20 px-6 bg-[#fafafa]">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-14">
+            <span className="text-[10px] font-bold tracking-wider text-[#4866C8] uppercase bg-[#eff3ff] px-2.5 py-1 rounded-full">The Process</span>
+            <h2 className="mt-4 text-2xl sm:text-3xl font-extrabold text-zinc-950 tracking-tight">How Handlr Works</h2>
+            <p className="mt-2 text-zinc-500 text-xs sm:text-sm">Four high-fidelity steps to career organization and momentum.</p>
           </div>
 
-          <div className="relative">
-            {/* Timeline Line */}
-            <div className="absolute left-6 sm:left-8 top-0 bottom-0 w-0.5 bg-gradient-to-b from-indigo-500 via-purple-500 to-rose-500 hidden sm:block"></div>
-
-            <div className="space-y-8 sm:space-y-12">
+          {/* Rebuilt Process Steps: Compact Horizontal Flow on Desktop, Stacks on Mobile */}
+          <div className="relative max-w-5xl mx-auto">
+            {/* Desktop timeline connection line */}
+            <div className="absolute top-[26px] left-[12%] right-[12%] h-[1px] bg-zinc-200 border-dashed border-t hidden lg:block -z-0" />
+            
+            <div className="grid lg:grid-cols-4 gap-8 relative z-10">
               {WORKFLOW_STEPS.map((step, idx) => {
                 const Icon = step.icon;
                 return (
-                  <div key={step.step} className="relative flex items-start gap-4 sm:gap-6">
-                    {/* Icon Circle */}
-                    <div className={`relative z-10 w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br ${step.color} flex items-center justify-center flex-shrink-0 shadow-lg`}>
-                      <Icon className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
+                  <div key={idx} className="flex flex-col items-center lg:items-start text-center lg:text-left bg-white lg:bg-transparent p-5 lg:p-0 border border-zinc-200/50 lg:border-none rounded-xl">
+                    {/* Timeline circle badge */}
+                    <div className="w-8 h-8 rounded-full bg-zinc-950 text-white flex items-center justify-center text-xs font-bold font-mono border-4 border-[#fafafa] lg:border-zinc-50 shadow-sm mb-3.5">
+                      {step.step}
                     </div>
-
-                    {/* Content */}
-                    <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 flex-1 card-hover shadow-sm" style={{ animationDelay: `${idx * 100}ms` }}>
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md">Step {step.step}</span>
-                        <h3 className="text-lg font-bold text-slate-900">{step.title}</h3>
-                      </div>
-                      <p className="text-slate-600 text-sm leading-relaxed">{step.description}</p>
-                    </div>
+                    
+                    <h3 className="text-xs sm:text-sm font-bold text-zinc-950 flex items-center gap-2">
+                      <Icon className="w-4 h-4 text-[#4866C8]" />
+                      {step.title}
+                    </h3>
+                    <p className="mt-2 text-xs text-zinc-500 leading-relaxed">{step.description}</p>
+                    <span className="inline-block mt-2 text-[9px] font-bold text-zinc-400 font-mono bg-zinc-50 border border-zinc-200/30 px-1.5 py-0.5 rounded">{step.detail}</span>
                   </div>
                 );
               })}
@@ -259,133 +374,159 @@ const HowItWorks = () => {
         </div>
       </section>
 
-      {/* ─── Backend Architecture ────────────────────────────── */}
-      <section className="py-20 px-4 bg-gradient-to-br from-slate-900 to-indigo-950 text-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-sm font-bold text-indigo-400 uppercase tracking-wider">Architecture</span>
-            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold text-white">Backend Flow</h2>
-            <p className="mt-4 text-lg text-slate-400 max-w-2xl mx-auto">
-              A robust, secure, and scalable backend powering every interaction.
-            </p>
+      {/* ─── Grid Feature Showcase ───────────────────────────── */}
+      <section className="py-20 px-6 bg-white border-t border-zinc-200/40">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <span className="text-[10px] font-bold tracking-wider text-[#4866C8] uppercase bg-[#eff3ff] px-2.5 py-1 rounded-full">Platform Capabilities</span>
+            <h2 className="mt-4 text-2xl sm:text-3xl font-extrabold text-zinc-950 tracking-tight">Modern Career Infrastructure</h2>
+            <p className="mt-2 text-zinc-500 text-xs sm:text-sm">Engineered for trust, legibility, and reduced chaos.</p>
           </div>
 
-          {/* Architecture Visual */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
-            {ARCHITECTURE_LAYERS.map((layer, idx) => {
-              const Icon = layer.icon;
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {FEATURES.map((feature, idx) => {
+              const Icon = feature.icon;
               return (
-                <div key={layer.label} className="relative">
-                  <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 text-center card-hover hover:bg-white/10 transition-colors">
-                    <div className={`w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br ${layer.color} flex items-center justify-center mb-4 shadow-lg`}>
-                      <Icon className="w-6 h-6 text-white" />
-                    </div>
-                    <h3 className="font-bold text-white mb-1">{layer.label}</h3>
-                    <p className="text-sm text-slate-400">{layer.sub}</p>
+                <div key={idx} className="p-6 border border-zinc-200/50 rounded-xl hover:border-zinc-350 bg-white transition-all shadow-[0_1px_2px_rgba(0,0,0,0.01)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
+                  <div className="w-8 h-8 bg-zinc-50 rounded-lg flex items-center justify-center mb-4 border border-zinc-100">
+                    <Icon className="w-4.5 h-4.5 text-zinc-900" />
                   </div>
-                  {idx < ARCHITECTURE_LAYERS.length - 1 && (
-                    <div className="hidden lg:flex absolute top-1/2 -right-2 transform -translate-y-1/2 z-10">
-                      <ChevronRight className="w-4 h-4 text-indigo-400" />
-                    </div>
-                  )}
+                  <h3 className="text-xs sm:text-sm font-bold text-zinc-950 mb-1.5">{feature.title}</h3>
+                  <p className="text-xs text-zinc-500 leading-relaxed">{feature.description}</p>
                 </div>
               );
             })}
           </div>
+        </div>
+      </section>
 
-          {/* Auth & API Flow Cards */}
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Lock className="w-5 h-5 text-indigo-400" />
-                <h3 className="font-bold text-white">Authentication Flow</h3>
-              </div>
-              <div className="space-y-3 text-sm text-slate-400">
-                <div className="flex items-start gap-2">
-                  <span className="text-indigo-400 font-mono text-xs mt-0.5">01</span>
-                  <p>User submits credentials → Server validates against MongoDB</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-indigo-400 font-mono text-xs mt-0.5">02</span>
-                  <p>Bcrypt compares hashed password → JWT token generated with userId + role</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-indigo-400 font-mono text-xs mt-0.5">03</span>
-                  <p>Token sent to client → Stored in localStorage → Attached to every API call via Axios interceptor</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-indigo-400 font-mono text-xs mt-0.5">04</span>
-                  <p><code className="text-indigo-300">protect</code> middleware verifies token → <code className="text-indigo-300">authorizeRoles</code> checks permissions</p>
-                </div>
+      {/* ─── Founder's Conviction Quote Card (Editorial Rebuild) ─── */}
+      <section className="py-20 px-6 bg-[#fafafa] border-t border-zinc-200/40">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center bg-white p-8 sm:p-10 border border-zinc-200/50 rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.01)] relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-[#4866C8]/1 rounded-full blur-2xl" />
+            
+            {/* Left Column: Author Credentials */}
+            <div className="lg:col-span-4 flex flex-col items-center lg:items-start text-center lg:text-left border-b lg:border-b-0 lg:border-r border-zinc-200/60 pb-6 lg:pb-0 lg:pr-8">
+              <span className="text-[9px] font-extrabold uppercase tracking-wider text-zinc-400 mb-4 block">Founder Conviction</span>
+              <div className="w-12 h-12 rounded-full bg-zinc-950 flex items-center justify-center text-white text-base font-bold shadow-sm mb-3">NR</div>
+              <div>
+                <p className="text-xs sm:text-sm font-bold text-zinc-950">Nishanth Rao</p>
+                <p className="text-[10px] text-zinc-400 font-semibold mt-0.5">Founder, Handlr</p>
               </div>
             </div>
 
-            <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Cpu className="w-5 h-5 text-indigo-400" />
-                <h3 className="font-bold text-white">API Request Lifecycle</h3>
-              </div>
-              <div className="space-y-3 text-sm text-slate-400">
-                <div className="flex items-start gap-2">
-                  <span className="text-indigo-400 font-mono text-xs mt-0.5">01</span>
-                  <p>React component triggers action → React Query calls API function</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-indigo-400 font-mono text-xs mt-0.5">02</span>
-                  <p>Axios sends request with Bearer token → Express router matches route</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-indigo-400 font-mono text-xs mt-0.5">03</span>
-                  <p>Middleware pipeline: auth → role check → subscription check → Zod validation</p>
-                </div>
-                <div className="flex items-start gap-2">
-                  <span className="text-indigo-400 font-mono text-xs mt-0.5">04</span>
-                  <p>Controller checks Redis cache → Falls back to MongoDB → Sets cache → Returns JSON response</p>
-                </div>
-              </div>
+            {/* Right Column: Quote Statement */}
+            <div className="lg:col-span-8">
+              <blockquote className="text-zinc-700 text-xs sm:text-sm lg:text-base italic leading-relaxed font-serif">
+                "We didn't build Handlr to play games with automated bot scripts or mass-apply to 1,000 jobs in 5 minutes. Spam bot platforms get people flagged and filtered out. We built Handlr because job searching deserves operational maturity and true calmness. Our platform delegates the tedious form details and manual outreach to dedicated professionals, ensuring you walk into interview panels fully rested and prepared."
+              </blockquote>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ─── Tech Stack ─────────────────────────────────────── */}
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-sm font-bold text-indigo-600 uppercase tracking-wider">Technology</span>
-            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold text-slate-900">Tech Stack</h2>
-            <p className="mt-4 text-lg text-slate-600">Built with modern, battle-tested technologies.</p>
+      {/* ─── Pricing Section ─────────────────────────────────── */}
+      <section className="py-20 px-6 bg-zinc-50 border-t border-zinc-200/40">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <span className="text-[10px] font-bold tracking-wider text-[#4866C8] uppercase bg-[#eff3ff] px-2.5 py-1 rounded-full">Pricing Plans</span>
+            <h2 className="mt-4 text-2xl sm:text-3xl font-extrabold text-zinc-950 tracking-tight">Structured for convenient scaling</h2>
+            <p className="mt-2 text-zinc-500 text-xs sm:text-sm">Transparent operations. No hidden contracts.</p>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-3">
-            {TECH_STACK.map((tech) => (
-              <div key={tech.name} className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border font-semibold text-sm ${tech.color} card-hover`}>
-                <span>{tech.name}</span>
-                <span className="text-xs opacity-60">· {tech.category}</span>
+          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            {PRICING_PLANS.map((plan, index) => (
+              <div 
+                key={index} 
+                className={`p-8 rounded-xl border flex flex-col justify-between transition-all bg-white relative ${
+                  plan.popular ? 'border-zinc-950 shadow-md ring-1 ring-zinc-950' : 'border-zinc-200/60 shadow-sm'
+                }`}
+              >
+                {plan.popular && (
+                  <span className="absolute -top-3 right-6 bg-zinc-950 text-white text-[9px] font-extrabold uppercase tracking-wider px-3 py-1 rounded-full border border-zinc-800 shadow-sm">
+                    Recommended Plan
+                  </span>
+                )}
+                <div>
+                  <h3 className="text-xs font-bold text-zinc-950 uppercase tracking-wider">{plan.name}</h3>
+                  <p className="mt-2 text-xs text-zinc-500 leading-normal">{plan.desc}</p>
+                  
+                  <div className="my-6 flex items-baseline gap-1.5">
+                    <span className="text-3xl font-extrabold text-zinc-950 tracking-tight">{plan.price}</span>
+                    <span className="text-xs text-zinc-400 font-semibold">{plan.period}</span>
+                  </div>
+
+                  <ul className="space-y-3.5 border-t border-zinc-100 pt-6">
+                    {plan.features.map((f, i) => (
+                      <li key={i} className="flex items-center gap-3 text-xs text-zinc-600">
+                        <Check className="w-3.5 h-3.5 text-zinc-950 flex-shrink-0" />
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="mt-6">
+                  <Link 
+                    to="/register" 
+                    className={`w-full inline-flex items-center justify-center px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                      plan.popular 
+                        ? 'bg-zinc-950 text-white hover:bg-zinc-800 shadow-sm active:scale-[0.985] border border-zinc-800' 
+                        : 'bg-white text-zinc-700 border border-zinc-200 hover:bg-zinc-50 shadow-sm active:scale-[0.985]'
+                    }`}
+                  >
+                    {plan.cta}
+                  </Link>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ─── Key Features ───────────────────────────────────── */}
-      <section className="py-20 px-4 bg-gradient-to-br from-slate-50 to-indigo-50/30">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-sm font-bold text-indigo-600 uppercase tracking-wider">Features</span>
-            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold text-slate-900">Key Features</h2>
+      {/* ─── FAQ Section ────────────────────────────────────── */}
+      <section className="py-20 px-6 bg-white border-t border-zinc-200/40">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-14">
+            <span className="text-[10px] font-bold tracking-wider text-[#4866C8] uppercase bg-[#eff3ff] px-2.5 py-1 rounded-full">Got Questions?</span>
+            <h2 className="mt-4 text-2xl sm:text-3xl font-extrabold text-zinc-950 tracking-tight">Frequently Asked Questions</h2>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {FEATURES.map((feature) => {
-              const Icon = feature.icon;
+          <div className="space-y-4 max-w-2xl mx-auto">
+            {FAQS.map((faq, index) => {
+              const isOpen = activeFaq === index;
               return (
-                <div key={feature.title} className="bg-white rounded-2xl border border-slate-200 p-6 card-hover shadow-sm group">
-                  <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-indigo-100 transition-colors">
-                    <Icon className="w-6 h-6 text-indigo-600" />
-                  </div>
-                  <h3 className="text-lg font-bold text-slate-900 mb-2">{feature.title}</h3>
-                  <p className="text-sm text-slate-600 leading-relaxed">{feature.description}</p>
+                <div 
+                  key={index} 
+                  className="border border-zinc-200/60 rounded-xl overflow-hidden bg-white transition-all duration-200"
+                >
+                  <button 
+                    onClick={() => setActiveFaq(isOpen ? null : index)}
+                    className="w-full px-5 py-3.5 flex items-center justify-between text-left hover:bg-zinc-50/50 transition-colors gap-4"
+                  >
+                    <span className="text-xs sm:text-sm font-bold text-zinc-950 flex items-center gap-2">
+                      <HelpCircle className="w-4 h-4 text-zinc-400 flex-shrink-0" />
+                      {faq.q}
+                    </span>
+                    <ChevronDown className={`w-4 h-4 text-zinc-400 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div 
+                        initial={{ height: 0 }}
+                        animate={{ height: 'auto' }}
+                        exit={{ height: 0 }}
+                        transition={{ duration: 0.2, ease: 'easeInOut' }}
+                        className="overflow-hidden"
+                      >
+                        <div className="px-5 pb-4 pt-0.5 text-xs text-zinc-500 border-t border-zinc-100/60 leading-relaxed bg-[#fafafa]/50">
+                          {faq.a}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               );
             })}
@@ -393,35 +534,47 @@ const HowItWorks = () => {
         </div>
       </section>
 
-      {/* ─── CTA Section ────────────────────────────────────── */}
-      <section className="py-20 px-4 bg-gradient-to-br from-indigo-600 to-violet-700 text-white">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl sm:text-4xl font-extrabold mb-6">Ready to Explore?</h2>
-          <p className="text-lg text-indigo-100 mb-10 max-w-xl mx-auto">
-            Try the demo accounts to experience the full platform — both Client and Associate perspectives.
+      {/* ─── Call to Action Section ──────────────────────────── */}
+      <section className="py-16 px-6 bg-zinc-950 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(#4866C8_1px,transparent_1px)] [background-size:32px_32px] opacity-10" />
+        
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+        <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-4" style={{ color: "#5B7CFA" }}>Restore sanity and momentum to your career.</h2>
+          <p className="text-xs text-zinc-400 mb-8 max-w-md mx-auto leading-relaxed">
+            Choose a plan, get assigned a dedicated associate in hours, and outsource the job application grind professional-style.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/login" className="inline-flex items-center gap-2 px-8 py-3.5 bg-white text-indigo-700 font-bold rounded-xl hover:bg-indigo-50 transition-all shadow-lg hover:-translate-y-0.5">
-              Try Demo Login <ArrowRight className="w-4 h-4" />
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-xs sm:max-w-none mx-auto">
+            <Link 
+              to="/register" 
+              className="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-white text-zinc-950 font-bold rounded-lg text-xs hover:bg-zinc-100 transition-colors shadow-sm active:scale-[0.985]"
+            >
+              Get Started Now
             </Link>
-            <Link to="/register" className="inline-flex items-center gap-2 px-8 py-3.5 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 transition-all border border-white/20">
-              Create Account
+            <Link 
+              to="/login" 
+              className="w-full sm:w-auto inline-flex items-center justify-center px-5 py-2.5 bg-zinc-900 text-zinc-300 border border-zinc-800 font-bold rounded-lg text-xs hover:bg-zinc-850 transition-colors active:scale-[0.985]"
+            >
+              Access Free Demo
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ─── Footer ─────────────────────────────────────────── */}
-      <footer className="py-8 px-4 bg-slate-900 text-center">
-        <div className="flex items-center justify-center gap-2 mb-3">
-          <div className="w-7 h-7 bg-gradient-to-br from-indigo-500 to-violet-500 rounded-lg flex items-center justify-center">
-            <Briefcase className="w-3.5 h-3.5 text-white" />
+      {/* ─── Footer Area ────────────────────────────────────── */}
+      <footer className="py-12 px-6 bg-[#fafafa] border-t border-zinc-200 text-center text-xs text-zinc-400">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <img 
+              src="/brand/logos/handlr-logo-black.svg" 
+              alt="Handlr Logo" 
+              className="h-5 w-auto opacity-70"
+            />
           </div>
-          <span className="text-sm font-bold text-white">HireSync</span>
+          <p className="max-w-md mx-auto text-[10px] text-zinc-400 leading-relaxed mb-4">
+            Handlr is a registered SaaS outsourcing job application management company. All client applications are executed manually under professional guidelines.
+          </p>
+          <p>&copy; {new Date().getFullYear()} Handlr. We Handle. You Grow. All rights reserved.</p>
         </div>
-        <p className="text-xs text-slate-500">
-          Built with MERN Stack • © {new Date().getFullYear()} All rights reserved.
-        </p>
       </footer>
     </div>
   );
