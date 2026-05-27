@@ -82,10 +82,10 @@ const ClientDashboard = () => {
   }, {});
 
   const statCards = [
-    { label: 'Total Applications', value: totalCount, icon: Briefcase, color: 'text-zinc-700' },
-    { label: 'In Interview', value: statusCounts['interview'] || 0, icon: TrendingUp, color: 'text-[#4866C8]' },
-    { label: 'Offers Secured', value: statusCounts['offer'] || 0, icon: Clock, color: 'text-emerald-600' },
-    { label: 'Pending Applied', value: statusCounts['applied'] || 0, icon: Building2, color: 'text-zinc-500' },
+    { label: 'Total Applications', value: totalCount, icon: Briefcase, bg: 'bg-zinc-50/50', border: 'border-zinc-200/50', color: 'text-zinc-550' },
+    { label: 'In Interview', value: statusCounts['interview'] || 0, icon: TrendingUp, bg: 'bg-[#eff3ff]/50', border: 'border-[#4866C8]/15', color: 'text-[#4866C8]' },
+    { label: 'Offers Secured', value: statusCounts['offer'] || 0, icon: Clock, bg: 'bg-emerald-50/50', border: 'border-emerald-100/50', color: 'text-emerald-600' },
+    { label: 'Pending Applied', value: statusCounts['applied'] || 0, icon: Building2, bg: 'bg-zinc-50/50', border: 'border-zinc-200/50', color: 'text-zinc-400' },
   ];
 
   return (
@@ -102,13 +102,13 @@ const ClientDashboard = () => {
           return (
             <div 
               key={stat.label} 
-              className="bg-white p-5 rounded-xl border border-zinc-200/80 shadow-[0_1px_2px_rgba(0,0,0,0.01)] flex items-center justify-between"
+              className="bg-white p-5 rounded-xl border border-zinc-200/70 hover:border-zinc-300 transition-colors duration-150 flex items-center justify-between"
             >
               <div>
-                <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">{stat.label}</p>
-                <p className="mt-2 text-2xl font-bold text-zinc-900 leading-none tracking-tight">{stat.value}</p>
+                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">{stat.label}</p>
+                <p className="mt-2 text-2xl font-semibold text-zinc-950 leading-none tracking-tight">{stat.value}</p>
               </div>
-              <div className="w-8 h-8 rounded-lg bg-zinc-50 border border-zinc-100 flex items-center justify-center">
+              <div className={`w-8 h-8 rounded-lg ${stat.bg} border ${stat.border} flex items-center justify-center`}>
                 <Icon className={`w-4 h-4 ${stat.color}`} />
               </div>
             </div>
@@ -134,7 +134,7 @@ const ClientDashboard = () => {
                 placeholder="Search by company or role..."
                 value={searchTerm}
                 onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
-                className="premium-input pl-9 py-2 focus:ring-1 focus:ring-[#4866C8]/10"
+                className="premium-input pl-9 py-1.5 px-3 h-9 text-xs focus:ring-1 focus:ring-[#4866C8]/10"
               />
             </div>
             {/* Filters */}
@@ -142,7 +142,7 @@ const ClientDashboard = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                className="premium-input py-2 bg-white text-xs border border-zinc-250 cursor-pointer min-w-[120px]"
+                className="premium-input py-1.5 px-3 h-9 bg-white text-xs border border-zinc-250 cursor-pointer min-w-[120px]"
               >
                 <option value="">All Statuses</option>
                 <option value="applied">Applied</option>
@@ -153,7 +153,7 @@ const ClientDashboard = () => {
               <select
                 value={sortOrder}
                 onChange={(e) => { setSortOrder(e.target.value); setPage(1); }}
-                className="premium-input py-2 bg-white text-xs border border-zinc-250 cursor-pointer"
+                className="premium-input py-1.5 px-3 h-9 bg-white text-xs border border-zinc-250 cursor-pointer"
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>

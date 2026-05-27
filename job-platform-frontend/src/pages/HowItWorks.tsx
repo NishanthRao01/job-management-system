@@ -132,6 +132,53 @@ const PRICING_PLANS = [
 
 const HowItWorks = () => {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  // Form state for workflow review
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    whatsapp: '',
+    targetRole: '',
+    message: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loading) return;
+    setLoading(true);
+    setError('');
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          access_key: import.meta.env.VITE_WEB3FORMS_ACCESS_KEY, // replace with your Web3Forms access key
+          name: formData.fullName,
+          email: formData.email,
+          whatsapp: formData.whatsapp,
+          target_role: formData.targetRole,
+          message: formData.message,
+          subject: 'Handlr Workflow Review Request'
+        })
+      });
+      const result = await response.json();
+      if (result.success) {
+        setSubmitted(true);
+      } else {
+        setError(result.message || 'Submission failed');
+      }
+    } catch (err) {
+      setError('Network error, please try again later');
+    }
+    setLoading(false);
+  };
 
   return (
     <div className="min-h-screen bg-[#fafafa] text-zinc-900 selection:bg-[#4866C8]/10 selection:text-[#4866C8]">
@@ -560,20 +607,205 @@ const HowItWorks = () => {
         </div>
       </section>
 
-      {/* ─── Footer Area ────────────────────────────────────── */}
-      <footer className="py-12 px-6 bg-[#fafafa] border-t border-zinc-200 text-center text-xs text-zinc-400">
+      {/* ─── Workflow Review Section ─────────────────────────────────── */}
+      <section id="workflow-review" className="py-24 px-6 bg-white border-t border-zinc-200/60 relative overflow-hidden">
+        {/* Subtle grid pattern overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(#e4e4e7_1px,transparent_1px)] [background-size:32px_32px] opacity-25 -z-10" />
         <div className="max-w-5xl mx-auto">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <img 
-              src="/brand/logos/handlr-logo-black.svg" 
-              alt="Handlr Logo" 
-              className="h-5 w-auto opacity-70"
-            />
+          {/* Section header */}
+          <div className="mb-14">
+            <span className="text-[10px] font-bold tracking-wider text-[#4866C8] uppercase bg-[#eff3ff] px-2.5 py-1 rounded-full border border-[#c7d4f8]">
+              Free Workflow Review
+            </span>
           </div>
-          <p className="max-w-md mx-auto text-[10px] text-zinc-400 leading-relaxed mb-4">
-            Handlr is a registered SaaS outsourcing job application management company. All client applications are executed manually under professional guidelines.
-          </p>
-          <p>&copy; {new Date().getFullYear()} Handlr. We Handle. You Grow. All rights reserved.</p>
+
+          <div className="grid lg:grid-cols-2 gap-14 items-start">
+            {/* ── Left: copy ─────────────────────────────────── */}
+            <div className="space-y-6">
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-[1.15] text-zinc-950">
+                Job searching should not feel like a second full-time job.
+              </h2>
+
+              <p className="text-sm leading-relaxed text-zinc-500">
+                Discuss your current job search workflow, application consistency, operational bottlenecks, and how Handlr can help reduce search fatigue and bring structure to the process.
+              </p>
+
+              {/* Bullet points */}
+              <ul className="space-y-3.5">
+                {[
+                  'Personalized workflow guidance',
+                  'Application process clarity',
+                  'WhatsApp-based onboarding support',
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3 text-sm text-zinc-700">
+                    <span className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 bg-[#eff3ff] border border-[#c7d4f8]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#4866C8]" />
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+
+              {/* Trust block */}
+              <div className="pt-6 space-y-1.5 border-t border-zinc-200">
+                <p className="text-xs flex items-center gap-2 text-zinc-555">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
+                  Usually responds within 24 hours.
+                </p>
+                <p className="text-xs text-zinc-400">
+                  Currently accepting a limited number of workflow reviews weekly.
+                </p>
+              </div>
+            </div>
+
+            {/* ── Right: clean premium light card ───────────────────── */}
+            <div className="rounded-xl p-8 bg-white border border-zinc-200/80 shadow-[0_4px_24px_rgba(9,13,22,0.02),0_1px_2px_rgba(9,13,22,0.02)]">
+              {!submitted ? (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {(
+                    [
+                      { id: 'fullName', label: 'Full Name', type: 'text', placeholder: 'Nishanth Rao' },
+                      { id: 'email', label: 'Email', type: 'email', placeholder: 'you@email.com' },
+                      { id: 'whatsapp', label: 'WhatsApp Number', type: 'tel', placeholder: '+91 98765 43210' },
+                      { id: 'targetRole', label: 'Target Role', type: 'text', placeholder: 'e.g. Frontend Engineer, Product Manager' },
+                    ] as { id: keyof typeof formData; label: string; type: string; placeholder: string }[]
+                  ).map(({ id, label, type, placeholder }) => (
+                    <div key={id} className="grid gap-1.5">
+                      <label htmlFor={id} className="text-[10px] font-semibold text-zinc-450 uppercase tracking-wider">
+                        {label}
+                      </label>
+                      <input
+                        type={type}
+                        id={id}
+                        name={id}
+                        value={formData[id]}
+                        onChange={handleChange}
+                        required
+                        placeholder={placeholder}
+                        className="w-full rounded-lg bg-zinc-50/50 border border-zinc-200 text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-[#4866C8] focus:ring-1 focus:ring-[#4866C8]/10 px-3.5 py-2.5 text-xs transition-all hover:border-zinc-300"
+                      />
+                    </div>
+                  ))}
+
+                  <div className="grid gap-1.5">
+                    <label htmlFor="message" className="text-[10px] font-semibold text-zinc-450 uppercase tracking-wider">
+                      Message <span className="normal-case text-zinc-400">(optional)</span>
+                    </label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      rows={3}
+                      placeholder="Tell us briefly where your current job search feels overwhelming."
+                      value={formData.message}
+                      onChange={handleChange}
+                      className="w-full rounded-lg bg-zinc-50/50 border border-zinc-200 text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-[#4866C8] focus:ring-1 focus:ring-[#4866C8]/10 px-3.5 py-2.5 text-xs transition-all hover:border-zinc-300 resize-none"
+                    />
+                  </div>
+
+                  {error && (
+                    <p className="text-xs rounded-lg px-3 py-2 text-red-655 bg-red-50 border border-red-200/50">
+                      {error}
+                    </p>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full mt-1 py-2.5 bg-[#4866C8] hover:bg-[#3d58b8] text-white text-xs font-semibold rounded-lg transition-all active:scale-[0.985] disabled:opacity-60 disabled:cursor-not-allowed shadow-md shadow-[#4866C8]/10"
+                  >
+                    {loading ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                        Submitting…
+                      </span>
+                    ) : 'Book Free Workflow Review'}
+                  </button>
+                </form>
+              ) : (
+                <div className="text-center py-8 space-y-4">
+                  <div className="w-12 h-12 mx-auto rounded-full flex items-center justify-center bg-emerald-50 border border-emerald-100">
+                    <Check className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <h3 className="text-base font-bold text-zinc-950">Request received.</h3>
+                  <p className="text-xs leading-relaxed text-zinc-500">
+                    Your workflow review request has been received.<br />
+                    Our team usually responds within 24 hours.
+                  </p>
+                  <p className="text-[11px] text-zinc-400">
+                    For faster communication, feel free to continue on WhatsApp.
+                  </p>
+                  <a
+                    href={`https://wa.me/${formData.whatsapp.replace(/\D/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 mt-2 px-5 py-2 bg-[#4866C8] hover:bg-[#3d58b8] text-white text-xs font-semibold rounded-lg transition-all shadow-md shadow-[#4866C8]/10"
+                  >
+                    Continue on WhatsApp
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Footer ─────────────────────────────────────────────────────── */}
+      <footer className="bg-[#090d16] border-t border-zinc-800/80 text-xs text-zinc-400 py-12">
+        <div className="max-w-5xl mx-auto px-6">
+          {/* Top row */}
+          <div className="flex flex-col md:flex-row items-center md:items-start justify-between gap-8 pb-10">
+            {/* Logo + tagline */}
+            <div className="flex flex-col items-center md:items-start gap-2">
+              <img
+                src="/brand/logos/handlr-logo-white.svg"
+                alt="Handlr Logo"
+                className="h-5 w-auto opacity-90"
+              />
+              <p className="text-[10px] text-zinc-500">Built for modern job seekers.</p>
+            </div>
+
+            {/* Contact links */}
+            <div className="flex flex-col sm:flex-row items-center gap-5 text-zinc-400">
+              <a
+                href="mailto:hello@handlr.co.in"
+                className="hover:text-white transition-colors"
+              >
+                hello@handlr.co.in
+              </a>
+              <span className="hidden sm:inline text-zinc-800">·</span>
+              <a
+                href="https://www.linkedin.com/company/handlrhq/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-[#5B7CFA] transition-colors"
+              >
+                LinkedIn
+              </a>
+              <span className="hidden sm:inline text-zinc-800">·</span>
+              <span className="text-zinc-500">WhatsApp workflow support available</span>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="border-t border-zinc-850" />
+
+          {/* Bottom row */}
+          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-5 text-zinc-550">
+              {['Privacy Policy', 'Terms', 'Contact'].map(link => (
+                <a
+                  key={link}
+                  href="#"
+                  className="hover:text-white transition-colors"
+                >
+                  {link}
+                </a>
+              ))}
+            </div>
+            <p className="text-[10px] text-zinc-550">
+              &copy; {new Date().getFullYear()} Handlr. We Handle. You Grow. All rights reserved.
+            </p>
+          </div>
         </div>
       </footer>
     </div>
