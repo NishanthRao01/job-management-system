@@ -34,6 +34,11 @@ const formatBytes = (bytes: number, decimals = 2) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 };
 
+const sanitizeDownloadUrl = (url?: string) => {
+  if (!url) return '';
+  return url.replace(/\/fl_attachment:([^/.]+)\.[a-zA-Z0-9]+/g, '/fl_attachment:$1');
+};
+
 const JobDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -328,7 +333,7 @@ const JobDetails = () => {
                       </div>
                     </div>
                     <a
-                      href={job.resumeFile.downloadUrl || job.resumeFile.url}
+                      href={sanitizeDownloadUrl(job.resumeFile.downloadUrl || job.resumeFile.url)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs font-semibold text-zinc-650 hover:text-zinc-900 bg-white border border-zinc-200 hover:border-zinc-350 px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
