@@ -328,7 +328,7 @@ const JobDetails = () => {
                       </div>
                     </div>
                     <a
-                      href={job.resumeFile.url}
+                      href={job.resumeFile.downloadUrl || job.resumeFile.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-xs font-semibold text-zinc-650 hover:text-zinc-900 bg-white border border-zinc-200 hover:border-zinc-350 px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"

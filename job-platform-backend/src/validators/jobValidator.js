@@ -2,11 +2,13 @@ const { z } = require("zod");
 
 const resumeFileSchema = z.object({
     url: z.string().url("Invalid file URL"),
+    downloadUrl: z.string().url("Invalid download URL").optional().or(z.literal("")),
     publicId: z.string().min(1, "Public ID is required"),
     filename: z.string().min(1, "Filename is required"),
     uploadedAt: z.string().or(z.date()).optional(),
     mimeType: z.string().optional(),
-    fileSize: z.number().positive().optional()
+    fileSize: z.number().positive().optional(),
+    resourceType: z.string().optional()
 }).optional().nullable();
 
 exports.createJobSchema = z.object({

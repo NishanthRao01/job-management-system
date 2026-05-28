@@ -33,23 +33,25 @@ exports.uploadResume = (fileBuffer, normalizedFilename) => {
     const uniqueHex = crypto.randomBytes(8).toString("hex");
     const baseName = normalizedFilename.replace(/\.[^/.]+$/, "");
     const ext = normalizedFilename.split(".").pop().toLowerCase();
-    const publicId = `handlr/resumes/${uniqueHex}-${baseName}`;
+    const publicId = `handlr/resumes/${uniqueHex}-${baseName}.${ext}`;
 
     if (!isConfigured) {
       // Simulation mode
+      const detectedResourceType = ext === "pdf" ? "image" : "raw";
       console.log(`[SIMULATION] Uploading ${normalizedFilename} to Cloudinary...`);
       return setTimeout(() => {
         resolve({
-          secure_url: `https://res.cloudinary.com/simulation-cloud/raw/upload/${publicId}.${ext}`,
+          secure_url: `https://res.cloudinary.com/simulation-cloud/${detectedResourceType}/upload/${publicId}`,
           public_id: `${publicId}`,
+          resource_type: detectedResourceType,
         });
       }, 800);
     }
 
-    // Official Cloudinary raw upload stream
+    // Official Cloudinary auto upload stream (automatically detects image/raw/etc.)
     const uploadStream = cloudinary.uploader.upload_stream(
       {
-        resource_type: "raw", // PDFs/DOCXs are uploaded as raw files
+        resource_type: "auto",
         public_id: publicId,
       },
       (error, result) => {
@@ -65,21 +67,22 @@ exports.uploadResume = (fileBuffer, normalizedFilename) => {
 };
 
 /**
- * Deletes a file from Cloudinary using publicId
+ * Deletes a file from Cloudinary using publicId and resourceType
  * @param {string} publicId 
+ * @param {string} resourceType 
  * @returns {Promise<object>}
  */
-exports.deleteResume = async (publicId) => {
+exports.deleteResume = async (publicId, resourceType = "raw") => {
   if (!isConfigured) {
-    console.log(`[SIMULATION] Deleting Cloudinary asset: ${publicId}`);
+    console.log(`[SIMULATION] Deleting Cloudinary asset: ${publicId} (type: ${resourceType})`);
     return { result: "ok" };
   }
 
   try {
     const result = await cloudinary.uploader.destroy(publicId, {
-      resource_type: "raw", // Raw resources MUST specify raw resource_type
+      resource_type: resourceType,
     });
-    console.log(`Cloudinary asset deleted: ${publicId}`, result);
+    console.log(`Cloudinary asset deleted: ${publicId} (type: ${resourceType})`, result);
     return result;
   } catch (error) {
     console.error("Cloudinary Delete Failed:", error);

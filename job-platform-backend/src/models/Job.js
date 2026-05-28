@@ -29,11 +29,13 @@ const jobSchema = new mongoose.Schema(
         resume: String,
         resumeFile: {
             url: String,
+            downloadUrl: String,
             publicId: String,
             filename: String,
             uploadedAt: Date,
             mimeType: String,
-            fileSize: Number
+            fileSize: Number,
+            resourceType: String
         },
 
         descriptionSnippet: String,
