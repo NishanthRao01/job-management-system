@@ -33,30 +33,34 @@ exports.uploadResume = (fileBuffer, normalizedFilename) => {
     const uniqueHex = crypto.randomBytes(8).toString("hex");
     const baseName = normalizedFilename.replace(/\.[^/.]+$/, "");
     const ext = normalizedFilename.split(".").pop().toLowerCase();
-    // IMPORTANT: raw resource_type requires extension in public_id.
-    // This produces a clean single-extension URL: /raw/upload/.../abc123-role-company.pdf
-    const publicId = `handlr/resumes/${uniqueHex}-${baseName}.${ext}`;
+    
+    // PDF files are treated as "image" resource type by Cloudinary's default security configuration.
+    // To prevent the double extension (.pdf.pdf) issue with image types, the public_id must NOT include the extension.
+    // DOCX/DOC files are treated as "raw" resource type. Raw types REQUIRE the extension in the public_id.
+    const isPdf = ext === "pdf";
+    const resourceType = isPdf ? "image" : "raw";
+    const publicId = isPdf 
+      ? `handlr/resumes/${uniqueHex}-${baseName}` 
+      : `handlr/resumes/${uniqueHex}-${baseName}.${ext}`;
 
     if (!isConfigured) {
-      // Simulation mode — always raw for documents
-      console.log(`[SIMULATION] Uploading ${normalizedFilename} to Cloudinary (raw)...`);
+      // Simulation mode
+      console.log(`[SIMULATION] Uploading ${normalizedFilename} to Cloudinary as ${resourceType}...`);
+      const mockUrl = isPdf 
+        ? `https://res.cloudinary.com/simulation-cloud/image/upload/${publicId}.pdf`
+        : `https://res.cloudinary.com/simulation-cloud/raw/upload/${publicId}`;
       return setTimeout(() => {
         resolve({
-          secure_url: `https://res.cloudinary.com/simulation-cloud/raw/upload/${publicId}`,
+          secure_url: mockUrl,
           public_id: publicId,
-          resource_type: "raw",
+          resource_type: resourceType,
         });
       }, 800);
     }
 
-    // Always upload as raw — PDFs and DOCX are document files, not images.
-    // resource_type: "raw" guarantees:
-    //   1. URL uses /raw/upload/ (correct for document delivery)
-    //   2. publicId with extension is used verbatim — no duplicate extension
-    //   3. File downloads correctly as PDF/DOCX on any OS
     const uploadStream = cloudinary.uploader.upload_stream(
       {
-        resource_type: "raw",
+        resource_type: resourceType,
         public_id: publicId,
       },
       (error, result) => {
@@ -72,22 +76,22 @@ exports.uploadResume = (fileBuffer, normalizedFilename) => {
 };
 
 /**
- * Deletes a raw file from Cloudinary using publicId.
- * All resume assets are stored as resource_type: "raw".
+ * Deletes a file from Cloudinary using publicId and resourceType.
  * @param {string} publicId 
+ * @param {string} resourceType 
  * @returns {Promise<object>}
  */
-exports.deleteResume = async (publicId) => {
+exports.deleteResume = async (publicId, resourceType = "raw") => {
   if (!isConfigured) {
-    console.log(`[SIMULATION] Deleting Cloudinary raw asset: ${publicId}`);
+    console.log(`[SIMULATION] Deleting Cloudinary asset: ${publicId} (type: ${resourceType})`);
     return { result: "ok" };
   }
 
   try {
     const result = await cloudinary.uploader.destroy(publicId, {
-      resource_type: "raw",
+      resource_type: resourceType,
     });
-    console.log(`Cloudinary raw asset deleted: ${publicId}`, result);
+    console.log(`Cloudinary asset deleted: ${publicId} (type: ${resourceType})`, result);
     return result;
   } catch (error) {
     console.error("Cloudinary Delete Failed:", error);

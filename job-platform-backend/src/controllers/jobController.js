@@ -44,7 +44,7 @@ exports.createJob = asyncHandler(async (req, res) => {
         // Rollback logic: delete uploaded Cloudinary asset if saving fails
         if (resumeFile && resumeFile.publicId) {
             const { deleteResume } = require("../services/cloudinaryService");
-            await deleteResume(resumeFile.publicId);
+            await deleteResume(resumeFile.publicId, resumeFile.resourceType || "raw");
         }
         throw err;
     }
@@ -300,11 +300,12 @@ exports.uploadResumeRoute = asyncHandler(async (req, res) => {
     const { uploadResume } = require("../services/cloudinaryService");
     const result = await uploadResume(file.buffer, targetFilename);
 
-    // Generate secure URL with fl_attachment transformation to force browser download
-    // (e.g. /raw/upload/fl_attachment/v.../handlr/resumes/abc-role-company.pdf)
+    // Generate secure URL with fl_attachment transformation to force browser download for image (PDF) types.
+    // Raw resource types (like DOCX) are served as attachments by default in Cloudinary and don't support URL transformations.
     let downloadUrl = result.secure_url;
-    if (result.secure_url && result.secure_url.includes("/upload/")) {
-        downloadUrl = result.secure_url.replace("/upload/", "/upload/fl_attachment/");
+    if (result.resource_type === "image" && result.secure_url && result.secure_url.includes("/upload/")) {
+        const cleanName = targetFilename.replace(/\.[^/.]+$/, "");
+        downloadUrl = result.secure_url.replace("/upload/", `/upload/fl_attachment:${cleanName}/`);
     }
 
     res.status(200).json({
@@ -317,7 +318,8 @@ exports.uploadResumeRoute = asyncHandler(async (req, res) => {
             filename: targetFilename,
             uploadedAt: new Date(),
             mimeType: file.mimetype,
-            fileSize: file.size
+            fileSize: file.size,
+            resourceType: result.resource_type
         }
     });
 });
@@ -342,6 +344,7 @@ exports.updateJob = asyncHandler(async (req, res) => {
     }
 
     const oldPublicId = job.resumeFile?.publicId;
+    const oldResourceType = job.resumeFile?.resourceType || "raw";
 
     // Update basic fields
     if (company !== undefined) job.company = company;
@@ -365,7 +368,7 @@ exports.updateJob = asyncHandler(async (req, res) => {
         // Rollback: if database save fails, but we had uploaded a new file, clean it up!
         if (resumeFile && resumeFile.publicId && resumeFile.publicId !== oldPublicId) {
             const { deleteResume } = require("../services/cloudinaryService");
-            await deleteResume(resumeFile.publicId);
+            await deleteResume(resumeFile.publicId, resumeFile.resourceType || "raw");
         }
         throw err;
     }
@@ -377,7 +380,7 @@ exports.updateJob = asyncHandler(async (req, res) => {
 
         if (isRemoved || isReplaced) {
             const { deleteResume } = require("../services/cloudinaryService");
-            await deleteResume(oldPublicId);
+            await deleteResume(oldPublicId, oldResourceType);
         }
     }
 
@@ -414,7 +417,7 @@ exports.deleteJob = asyncHandler(async (req, res) => {
     // Delete attachment from Cloudinary if it exists
     if (job.resumeFile && job.resumeFile.publicId) {
         const { deleteResume } = require("../services/cloudinaryService");
-        await deleteResume(job.resumeFile.publicId);
+        await deleteResume(job.resumeFile.publicId, job.resumeFile.resourceType || "raw");
     }
 
     await Job.findByIdAndDelete(jobId);
