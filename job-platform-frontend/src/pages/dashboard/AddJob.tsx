@@ -4,13 +4,15 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { jobsApi } from '../../api/jobs';
 import { usersApi } from '../../api/users';
 import { Briefcase, Building2, Link as LinkIcon } from 'lucide-react';
+import { ResumeUpload } from '../../components/ResumeUpload';
 
 const AddJob = () => {
   const [clientId, setClientId] = useState('');
   const [company, setCompany] = useState('');
   const [role, setRole] = useState('');
   const [jobLink, setJobLink] = useState('');
-  const [resume, setResume] = useState('');
+  const [resumeFile, setResumeFile] = useState<any>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [descriptionSnippet, setDescriptionSnippet] = useState('');
   const [keywords, setKeywords] = useState('');
   const [initialNote, setInitialNote] = useState('');
@@ -40,8 +42,9 @@ const AddJob = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!clientId) { setError('Please select a client.'); return; }
+    if (isUploading) { setError('Please wait for the resume upload to complete.'); return; }
     const keywordsArray = keywords.split(',').map(k => k.trim()).filter(k => k);
-    createJobMutation.mutate({ clientId, company, role, jobLink, resume, descriptionSnippet, keywords: keywordsArray, initialNote });
+    createJobMutation.mutate({ clientId, company, role, jobLink, resumeFile, descriptionSnippet, keywords: keywordsArray, initialNote });
   };
 
   const inputClass = "focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 block w-full text-sm border-slate-300 rounded-xl py-2.5 border shadow-sm transition-all";
@@ -104,13 +107,14 @@ const AddJob = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Resume Link <span className="text-slate-400 font-normal">(Optional)</span></label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <LinkIcon className="h-4 w-4 text-slate-400" />
-                </div>
-                <input type="url" value={resume} onChange={(e) => setResume(e.target.value)} className={`${inputClass} pl-10`} placeholder="Link to the tailored resume..." />
-              </div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">Attach Tailored Resume <span className="text-slate-400 font-normal">(Optional)</span></label>
+              <ResumeUpload
+                value={resumeFile}
+                onChange={setResumeFile}
+                role={role}
+                company={company}
+                onUploadingChange={setIsUploading}
+              />
             </div>
 
             <div>
@@ -132,8 +136,8 @@ const AddJob = () => {
               <button type="button" onClick={() => navigate(-1)} className="py-2.5 px-5 border border-slate-300 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors">
                 Cancel
               </button>
-              <button type="submit" disabled={createJobMutation.isPending} className="py-2.5 px-5 border border-transparent rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 transition-all shadow-sm hover:shadow-lg hover:shadow-indigo-500/25">
-                {createJobMutation.isPending ? 'Saving...' : 'Add Application'}
+              <button type="submit" disabled={createJobMutation.isPending || isUploading} className="py-2.5 px-5 border border-transparent rounded-xl text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 transition-all shadow-sm hover:shadow-lg hover:shadow-indigo-500/25">
+                {createJobMutation.isPending ? 'Saving...' : isUploading ? 'Uploading...' : 'Add Application'}
               </button>
             </div>
           </form>
