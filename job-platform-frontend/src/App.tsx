@@ -5,6 +5,8 @@ import RoleRoute from './routes/RoleRoute';
 import AuthLayout from './components/layout/AuthLayout';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import HowItWorks from './pages/HowItWorks';
 import DashboardLayout from './components/layout/DashboardLayout';
 import ClientDashboard from './pages/dashboard/ClientDashboard';
@@ -38,6 +40,8 @@ const App = () => {
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Route>
 
         {/* Protected Routes */}

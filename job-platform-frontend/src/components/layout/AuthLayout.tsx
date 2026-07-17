@@ -5,6 +5,8 @@ const AuthLayout = () => {
   const location = useLocation();
   const isLogin = location.pathname === '/login';
   const isRegister = location.pathname === '/register';
+  const isForgotPassword = location.pathname === '/forgot-password';
+  const isResetPassword = location.pathname === '/reset-password';
 
   return (
     <div className="min-h-screen bg-[#fafafa] flex flex-col justify-between">
@@ -31,14 +33,26 @@ const AuthLayout = () => {
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="text-center mb-6">
             <h2 className="text-xl sm:text-2xl font-extrabold tracking-tight text-zinc-950">
-              {isLogin ? 'Welcome back to Handlr' : isRegister ? 'Create your Handlr account' : 'Handlr Platform'}
+              {isLogin 
+                ? 'Welcome back to Handlr' 
+                : isRegister 
+                  ? 'Create your Handlr account' 
+                  : isForgotPassword
+                    ? 'Reset your password'
+                    : isResetPassword
+                      ? 'Set a new password'
+                      : 'Handlr Platform'}
             </h2>
             <p className="mt-2 text-xs sm:text-sm text-zinc-500">
               {isLogin
                 ? 'Manage applications, clients, and career workflows'
                 : isRegister
                   ? 'Get started today to streamline your application pipeline'
-                  : 'We Handle. You Grow.'}
+                  : isForgotPassword
+                    ? 'Enter your email address to request a password reset link'
+                    : isResetPassword
+                      ? 'Choose a secure new password for your account'
+                      : 'We Handle. You Grow.'}
             </p>
           </div>
         </div>

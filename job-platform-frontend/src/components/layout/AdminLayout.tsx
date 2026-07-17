@@ -1,4 +1,6 @@
-import { Outlet, NavLink, Link } from "react-router-dom";
+import { Outlet, NavLink, Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { LogOut } from "lucide-react";
 
 const navItems = [
   {
@@ -29,6 +31,14 @@ const navItems = [
 ];
 
 const AdminLayout = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
     <div className="min-h-screen flex bg-[#fafafa]">
       {/* Sidebar */}
@@ -66,6 +76,31 @@ const AdminLayout = () => {
             </NavLink>
           ))}
         </nav>
+
+        {/* User Profile & Logout */}
+        <div className="pt-4 border-t border-zinc-100 mt-auto">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center min-w-0">
+              <div className="w-8 h-8 rounded-lg bg-zinc-950 flex items-center justify-center text-white font-bold text-xs select-none">
+                {user?.name?.charAt(0).toUpperCase()}
+              </div>
+              <div className="ml-2.5 overflow-hidden">
+                <p className="text-xs font-bold text-zinc-900 truncate">{user?.name}</p>
+                <p className="text-[10px] text-zinc-400 truncate capitalize flex items-center gap-1 mt-0.5 font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
+                  {user?.role}
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="p-1.5 text-zinc-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
+              title="Logout"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
       </aside>
 
       {/* Main Content Area */}

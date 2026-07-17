@@ -31,6 +31,12 @@ const userSchema = new mongoose.Schema({
     isAvailable: {
         type: Boolean,
         default: true
+    },
+    passwordResetToken: {
+        type: String,
+    },
+    passwordResetExpires: {
+        type: Date,
     }
 },{ timestamps:  true }); // automatically adds createdAt, updatedAt
 
