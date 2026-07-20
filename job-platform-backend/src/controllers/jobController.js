@@ -77,8 +77,7 @@ exports.getClientJobs = asyncHandler(async (req, res) => {
         console.log("Redis Hit");
         return res.status(200).json({
             success: true,
-            count: cachedData.count,
-            data: cachedData.data
+            ...cachedData
         });
     }
 
@@ -87,16 +86,35 @@ exports.getClientJobs = asyncHandler(async (req, res) => {
         .populate("clientId", "name email")
         .populate("associateId", "name email");
 
-    const features = new APIFeatures(baseQuery, req.query)
-        .filter()
-        .sort()
-        .paginate();
+    const features = new APIFeatures(baseQuery, req.query);
 
+    // Build the filter query for countDocuments using features.getFilterObject()
+    const filterObj = features.getFilterObject();
+    const filter = { clientId, ...filterObj };
+
+    // Get total matching count before pagination
+    const count = await Job.countDocuments(filter);
+
+    // Execute queries (filter, sort, paginate)
+    features.filter().sort().paginate();
     const jobs = await features.query;
+
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const totalPages = Math.ceil(count / limit);
+    const hasNext = page < totalPages;
+    const hasPrevious = page > 1;
     
     const response = {
-        count: jobs.length,
-        data: jobs
+        count,
+        data: jobs,
+        pagination: {
+            page,
+            limit,
+            totalPages,
+            hasNext,
+            hasPrevious
+        }
     };
 
     //setCache
@@ -124,8 +142,7 @@ exports.getAssociateJobs = asyncHandler(async (req, res) => {
         console.log("Redis Hit");
         return res.status(200).json({
             success: true,
-            count: cachedData.count,
-            data: cachedData.data
+            ...cachedData
         });
     }
 
@@ -133,16 +150,35 @@ exports.getAssociateJobs = asyncHandler(async (req, res) => {
         .populate("clientId", "name email")
         .populate("associateId", "name email");
 
-    const features = new APIFeatures(baseQuery, req.query)
-        .filter()
-        .sort()
-        .paginate();
+    const features = new APIFeatures(baseQuery, req.query);
 
+    // Build the filter query for countDocuments using features.getFilterObject()
+    const filterObj = features.getFilterObject();
+    const filter = { associateId, ...filterObj };
+
+    // Get total matching count before pagination
+    const count = await Job.countDocuments(filter);
+
+    // Execute queries (filter, sort, paginate)
+    features.filter().sort().paginate();
     const jobs = await features.query;
 
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const totalPages = Math.ceil(count / limit);
+    const hasNext = page < totalPages;
+    const hasPrevious = page > 1;
+
     const response = {
-        count: jobs.length,
-        data: jobs
+        count,
+        data: jobs,
+        pagination: {
+            page,
+            limit,
+            totalPages,
+            hasNext,
+            hasPrevious
+        }
     };
 
     await setCache(cacheKey,response);

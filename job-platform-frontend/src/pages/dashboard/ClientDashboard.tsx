@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { jobsApi } from '../../api/jobs';
-import { Building2, Calendar, MessageSquare, Search, ChevronLeft, ChevronRight, Briefcase, TrendingUp, Clock, XCircle } from 'lucide-react';
+import { Building2, Calendar, MessageSquare, Search, Briefcase, TrendingUp, Clock, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useDebounce } from '../../hooks/useDebounce';
 import { motion } from 'framer-motion';
@@ -73,7 +73,14 @@ const ClientDashboard = () => {
 
   const jobs = data?.data || [];
   const totalCount = data?.count || 0;
-  const totalPages = Math.ceil(totalCount / limit);
+  const pagination = data?.pagination || {
+    page: 1,
+    limit: 10,
+    totalPages: 0,
+    hasNext: false,
+    hasPrevious: false
+  };
+  const totalPages = pagination.totalPages;
 
   // Compute status counts from available data
   const statusCounts = jobs.reduce((acc: Record<string, number>, job: any) => {
@@ -209,22 +216,25 @@ const ClientDashboard = () => {
         {totalPages > 1 && (
           <div className="px-6 py-4 border-t border-zinc-100 bg-[#fafafa]/30 flex items-center justify-between">
             <p className="text-xs text-zinc-550">
-              Showing <span className="font-semibold">{(page - 1) * limit + 1}</span> to <span className="font-semibold">{Math.min(page * limit, totalCount)}</span> of <span className="font-semibold">{totalCount}</span> applications
+              Showing <span className="font-semibold">{(page - 1) * limit + 1}–{Math.min(page * limit, totalCount)}</span> of <span className="font-semibold">{totalCount}</span> applications
             </p>
-            <div className="flex gap-1.5">
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-                className="premium-btn-secondary py-1.5 px-3 rounded text-xs select-none disabled:opacity-40 disabled:cursor-not-allowed"
+                disabled={!pagination.hasPrevious}
+                className="premium-btn-secondary py-1.5 px-3 rounded text-xs select-none disabled:opacity-40 disabled:cursor-not-allowed flex items-center"
               >
-                <ChevronLeft className="h-3.5 w-3.5 mr-1" /> Prev
+                ← Previous
               </button>
+              <span className="text-xs text-zinc-550 min-w-[70px] text-center">
+                Page {page} of {totalPages}
+              </span>
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                className="premium-btn-secondary py-1.5 px-3 rounded text-xs select-none disabled:opacity-40 disabled:cursor-not-allowed"
+                disabled={!pagination.hasNext}
+                className="premium-btn-secondary py-1.5 px-3 rounded text-xs select-none disabled:opacity-40 disabled:cursor-not-allowed flex items-center"
               >
-                Next <ChevronRight className="h-3.5 w-3.5 ml-1" />
+                Next →
               </button>
             </div>
           </div>

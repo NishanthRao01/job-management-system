@@ -3,7 +3,7 @@ class APIFeatures {
         this.query = query;
         this.queryString = queryString;
     }
-    filter() {
+    getFilterObject() {
         let queryObj = {};
         if (this.queryString.status) {
             queryObj.status = this.queryString.status;
@@ -17,6 +17,10 @@ class APIFeatures {
                 { role: { $regex: this.queryString.search, $options: "i" } }
             ];
         }
+        return queryObj;
+    }
+    filter() {
+        const queryObj = this.getFilterObject();
         this.query = this.query.find(queryObj);
         return this;
     }
