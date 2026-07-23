@@ -85,12 +85,12 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
         user.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes from now
         await user.save();
 
-        // Print reset URL to server console in development only
-        if (process.env.NODE_ENV === "development" || !process.env.NODE_ENV) {
+        // Print reset event to server console in development only (safe version, hiding the token)
+        if (process.env.NODE_ENV === "development") {
             console.log("\n========================================");
-            console.log("PASSWORD RESET REQUEST LOG");
+            console.log("PASSWORD RESET REQUEST RECEIVED (DEVELOPMENT ONLY)");
             console.log(`Email: ${email}`);
-            console.log(`Reset URL: ${process.env.CLIENT_URL || "http://localhost:5173/"}reset-password?token=${resetToken}`);
+            console.log("Status: Token generated successfully (hidden for security)");
             console.log("========================================\n");
         }
     }

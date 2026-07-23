@@ -6,6 +6,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const jwt = require("jsonwebtoken");
+const mongoSanitize = require("express-mongo-sanitize");
 
 const connectDB = require("./src/config/db");
 const { connectRedis } = require("./src/config/redis");
@@ -61,6 +62,14 @@ app.use(
 // BODY PARSER
 
 app.use(express.json());
+
+// Sanitize request body, query parameters, and route parameters against NoSQL injection
+app.use((req, res, next) => {
+  if (req.body) mongoSanitize.sanitize(req.body);
+  if (req.params) mongoSanitize.sanitize(req.params);
+  if (req.query) mongoSanitize.sanitize(req.query);
+  next();
+});
 
 
 // API ROUTES

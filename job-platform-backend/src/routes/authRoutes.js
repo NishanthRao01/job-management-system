@@ -4,7 +4,7 @@ const rateLimit = require("express-rate-limit");
 
 const { registerClient, login, forgotPassword, resetPassword } = require("../controllers/authController");
 const validate = require("../middleware/validate");
-const { forgotPasswordSchema, resetPasswordSchema } = require("../validators/authValidator");
+const { forgotPasswordSchema, resetPasswordSchema, loginSchema, registerSchema } = require("../validators/authValidator");
 
 const forgotPasswordLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
@@ -14,8 +14,8 @@ const forgotPasswordLimiter = rateLimit({
     legacyHeaders: false,
 });
 
-router.post("/register", registerClient);
-router.post("/login", login);
+router.post("/register", validate(registerSchema), registerClient);
+router.post("/login", validate(loginSchema), login);
 router.post("/forgot-password", forgotPasswordLimiter, validate(forgotPasswordSchema), forgotPassword);
 router.post("/reset-password", validate(resetPasswordSchema), resetPassword);
 
